@@ -1,5 +1,5 @@
 {
-  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes.",
+  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes.",
   "files": [
     {
       "path": ".gitignore",
@@ -8,8 +8,8 @@
     },
     {
       "path": "BUILD-VERIFICATION.md",
-      "bytes": 924,
-      "sha256": "22a0b81a5b2de410736d01b0f28d0d580e86400c640f4ec87499b5cefc8ef12b"
+      "bytes": 1446,
+      "sha256": "dd4cd620a87659481b80d0cbbbdcaa03d540304b11fb61b902cc3506a0c8bba7"
     },
     {
       "path": "Cargo.lock",
@@ -22,14 +22,34 @@
       "sha256": "83efb57f7be65e3bbf4256c72fa70b5fd9542bf1448cbca4075988b3134e7bf7"
     },
     {
-      "path": "dock.html",
-      "bytes": 484,
-      "sha256": "7915be21fa61ef41d4e1049c415623f6ded41eb00caac6c726c937c0de85f01c"
-    },
-    {
       "path": "EXPORT-DIFFERENCES.md",
       "bytes": 1824,
       "sha256": "cf899cd4a1301428d0c9ca415d9bcf5ccfa99cf4f455a17222ff04e2aebdbd8f"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1070,
+      "sha256": "aa52c5b1a8e5d8390be9651bdab25e99f2f20082b8d9a6ae16b9fd1e00bf3c74"
+    },
+    {
+      "path": "LICENSE-ASSETS.md",
+      "bytes": 1567,
+      "sha256": "b8a2a7467c6d3ef6f52e097806332a01b2c28f99900d50172c5c5fd252aa4b29"
+    },
+    {
+      "path": "NOTICE.txt",
+      "bytes": 768,
+      "sha256": "82df43486fbec39cf8e5abda831dad52d0f1c618f6f9e728cb93d435584150bc"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2504,
+      "sha256": "2af14ce10bb4bd5113819a1627f3c7eed07b949a33660bebdf7f2859a1521910"
+    },
+    {
+      "path": "dock.html",
+      "bytes": 484,
+      "sha256": "7915be21fa61ef41d4e1049c415623f6ded41eb00caac6c726c937c0de85f01c"
     },
     {
       "path": "hook/Cargo.toml",
@@ -50,21 +70,6 @@
       "path": "index.html",
       "bytes": 292,
       "sha256": "3c44095b0b003a76b79441bd091fcdfdf053f175312257b8f8655bd472d354fc"
-    },
-    {
-      "path": "LICENSE",
-      "bytes": 1070,
-      "sha256": "aa52c5b1a8e5d8390be9651bdab25e99f2f20082b8d9a6ae16b9fd1e00bf3c74"
-    },
-    {
-      "path": "LICENSE-ASSETS.md",
-      "bytes": 1567,
-      "sha256": "b8a2a7467c6d3ef6f52e097806332a01b2c28f99900d50172c5c5fd252aa4b29"
-    },
-    {
-      "path": "NOTICE.txt",
-      "bytes": 768,
-      "sha256": "82df43486fbec39cf8e5abda831dad52d0f1c618f6f9e728cb93d435584150bc"
     },
     {
       "path": "observer/Cargo.toml",
@@ -97,11 +102,6 @@
       "sha256": "0c2e98be2b726729067152a43715a87c5a62eeee1232e4a8fbfb7c31754aa423"
     },
     {
-      "path": "README.md",
-      "bytes": 2504,
-      "sha256": "2af14ce10bb4bd5113819a1627f3c7eed07b949a33660bebdf7f2859a1521910"
-    },
-    {
       "path": "scripts/gen-icons.mjs",
       "bytes": 5498,
       "sha256": "ff1e573328d0b3412ad17edb1126950477124fa1a69dab2436b7a30631e037fb"
@@ -115,6 +115,166 @@
       "path": "settings.html",
       "bytes": 387,
       "sha256": "707fd16f52f522d1d7e2ef06c2e1c81d79c8b535197e2b6265cdc231ac3ab358"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 1492,
+      "sha256": "34b2eb85269bbf2acde9052632638aa263e42f9e44c4c4a63b3bd0dbcfc11377"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "bytes": 39,
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "bytes": 318,
+      "sha256": "bf98dba65b1ecaa8f4db44d31fa878db2014677a92fbf2a764981b91c394629c"
+    },
+    {
+      "path": "src-tauri/icons/128x128.png",
+      "bytes": 1488,
+      "sha256": "35be06a5158e8aab83e747851177cf065731dff47103cb50962536e2a36c114b"
+    },
+    {
+      "path": "src-tauri/icons/128x128@2x.png",
+      "bytes": 3056,
+      "sha256": "18acdef874289c45db41df1274413d326853b35a9a3567769f9afcb2b4cfa30b"
+    },
+    {
+      "path": "src-tauri/icons/32x32.png",
+      "bytes": 438,
+      "sha256": "2f26390a6154b5771f79ef2ae0efef7ff3653d2a49a02dcf68c0aa7b1cc38325"
+    },
+    {
+      "path": "src-tauri/icons/icon.ico",
+      "bytes": 7057,
+      "sha256": "cd6459c38d19db33c14e149f257e3b4c3739ef9acdb3d67c21dc2e96444ecfac"
+    },
+    {
+      "path": "src-tauri/icons/icon.png",
+      "bytes": 6374,
+      "sha256": "b186d43e6d42c9afbeb11c3cff64ec162f531b9fd1e211013f6289b69b7c7e54"
+    },
+    {
+      "path": "src-tauri/nsis/hooks.nsh",
+      "bytes": 828,
+      "sha256": "a9a3c02f9408800a9a193fa60ba89bbfb9b48dff357f822880a8c78581eac74f"
+    },
+    {
+      "path": "src-tauri/src/activity.rs",
+      "bytes": 2050,
+      "sha256": "be5d4bb0c9b2343186501ffe513d79c37b84773601ef10963b0a707ac8d08d48"
+    },
+    {
+      "path": "src-tauri/src/claude.rs",
+      "bytes": 9114,
+      "sha256": "9840e172acde9c9adaf9c00091c79ac7753350a288e48298909e41c9bcc38eef"
+    },
+    {
+      "path": "src-tauri/src/codex.rs",
+      "bytes": 30283,
+      "sha256": "0d0584f82fef78e62f8faab0f8d749a372631ff2a3a140903d9984172201aecd"
+    },
+    {
+      "path": "src-tauri/src/dock.rs",
+      "bytes": 28617,
+      "sha256": "283d8ae847a39165239324198ef33ab4cc28d51619da9eed9db49744fda9ea12"
+    },
+    {
+      "path": "src-tauri/src/dock_position.rs",
+      "bytes": 4290,
+      "sha256": "1b4dc879983928aca8aa6eefcd736a71d5d0f04e94b48739b489d5d8464703a1"
+    },
+    {
+      "path": "src-tauri/src/encoding.rs",
+      "bytes": 1120,
+      "sha256": "a95bfab0060b9ae945d6b75a6482d57e3b7f8746e69e445e6c150a56e75810b6"
+    },
+    {
+      "path": "src-tauri/src/files.rs",
+      "bytes": 17832,
+      "sha256": "d7891365a6a0b28d958d3cdebe9f490646d2d69199a8c14d07a0a0a3dbd45439"
+    },
+    {
+      "path": "src-tauri/src/hooks.rs",
+      "bytes": 20905,
+      "sha256": "e6a2837da06ff21d6d87cf0ff251497a267545dc77f55222bfc7ba70ff08d716"
+    },
+    {
+      "path": "src-tauri/src/integrations.rs",
+      "bytes": 28255,
+      "sha256": "c187fb4ee7beebb8c8d0f90a66484124cd8d71071b296946cc4d783bd7b6b9c7"
+    },
+    {
+      "path": "src-tauri/src/island.rs",
+      "bytes": 27438,
+      "sha256": "57afd14a99a7591e5399600583f0140d9ffa3d23d096020485d9b59160fcba1b"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "bytes": 28752,
+      "sha256": "7711dce56b8ebf180591e2cac4991650044bc4e9bb802ae76c56598a0ba11732"
+    },
+    {
+      "path": "src-tauri/src/log.rs",
+      "bytes": 983,
+      "sha256": "7d7eded859ae2561dd74f5b7e2b655d671f1f19bce8a7f30802a5b90d32a5621"
+    },
+    {
+      "path": "src-tauri/src/main.rs",
+      "bytes": 168,
+      "sha256": "e25b6d739382624ae162a08aae1d8a45446dbfb1f45e673c71231e38fb0db242"
+    },
+    {
+      "path": "src-tauri/src/native_drop.rs",
+      "bytes": 12935,
+      "sha256": "4f8137d288bb1551f9643bab26a7ef15849cbaaad1aed36c152ddb0b22690655"
+    },
+    {
+      "path": "src-tauri/src/pipe.rs",
+      "bytes": 10245,
+      "sha256": "6274a66814270dbe02e1cb5167cfe58344b5402affa23987e344c73e163023eb"
+    },
+    {
+      "path": "src-tauri/src/projects.rs",
+      "bytes": 8803,
+      "sha256": "ba978a6dcfa479685b56e477323d1cf77156a76c3336ce854b771682291e44cc"
+    },
+    {
+      "path": "src-tauri/src/secrets.rs",
+      "bytes": 1377,
+      "sha256": "af2ff8851f7c11677360f6b9ac5989bef7c983d3ed714c6ced090b0182a1612c"
+    },
+    {
+      "path": "src-tauri/src/settings.rs",
+      "bytes": 5567,
+      "sha256": "948e25125ccff4f313872e47f051de7c3ec7255681ef0e304920c5281bee6ad5"
+    },
+    {
+      "path": "src-tauri/src/surfaces.rs",
+      "bytes": 1198,
+      "sha256": "272dd46729498054a873ceb62522282f613e20da290026dcc1ad78f2164147e4"
+    },
+    {
+      "path": "src-tauri/src/tray.rs",
+      "bytes": 1424,
+      "sha256": "e5fbe51543bcf0608b881d65d064c3dde11a69a4ef1f6e092e70c05090961f00"
+    },
+    {
+      "path": "src-tauri/src/win_user.rs",
+      "bytes": 1798,
+      "sha256": "24500c9fd9535c046d5720ebd096bd1e17398e1b9cfc3e9e6c46e525bac83649"
+    },
+    {
+      "path": "src-tauri/src/work.rs",
+      "bytes": 36459,
+      "sha256": "cc708f75c9fbe3428b60cfcfc4a8883d377f9d9a73f39acf1bd11b1d444542b3"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 2156,
+      "sha256": "9cc35ae697328ca83d3b00ce6d244d261294132021cb8b5bc00d4f1e42ac70ac"
     },
     {
       "path": "src/components/model-picker.css",
@@ -328,168 +488,8 @@
     },
     {
       "path": "src/views/work.ts",
-      "bytes": 11076,
-      "sha256": "f9b5624a6031631711007010fdafd75aa516022596f11db7c4036bbddd39050c"
-    },
-    {
-      "path": "src-tauri/build.rs",
-      "bytes": 39,
-      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
-    },
-    {
-      "path": "src-tauri/capabilities/default.json",
-      "bytes": 318,
-      "sha256": "bf98dba65b1ecaa8f4db44d31fa878db2014677a92fbf2a764981b91c394629c"
-    },
-    {
-      "path": "src-tauri/Cargo.toml",
-      "bytes": 1492,
-      "sha256": "34b2eb85269bbf2acde9052632638aa263e42f9e44c4c4a63b3bd0dbcfc11377"
-    },
-    {
-      "path": "src-tauri/icons/128x128.png",
-      "bytes": 1488,
-      "sha256": "35be06a5158e8aab83e747851177cf065731dff47103cb50962536e2a36c114b"
-    },
-    {
-      "path": "src-tauri/icons/128x128@2x.png",
-      "bytes": 3056,
-      "sha256": "18acdef874289c45db41df1274413d326853b35a9a3567769f9afcb2b4cfa30b"
-    },
-    {
-      "path": "src-tauri/icons/32x32.png",
-      "bytes": 438,
-      "sha256": "2f26390a6154b5771f79ef2ae0efef7ff3653d2a49a02dcf68c0aa7b1cc38325"
-    },
-    {
-      "path": "src-tauri/icons/icon.ico",
-      "bytes": 7057,
-      "sha256": "cd6459c38d19db33c14e149f257e3b4c3739ef9acdb3d67c21dc2e96444ecfac"
-    },
-    {
-      "path": "src-tauri/icons/icon.png",
-      "bytes": 6374,
-      "sha256": "b186d43e6d42c9afbeb11c3cff64ec162f531b9fd1e211013f6289b69b7c7e54"
-    },
-    {
-      "path": "src-tauri/nsis/hooks.nsh",
-      "bytes": 828,
-      "sha256": "a9a3c02f9408800a9a193fa60ba89bbfb9b48dff357f822880a8c78581eac74f"
-    },
-    {
-      "path": "src-tauri/src/activity.rs",
-      "bytes": 2050,
-      "sha256": "be5d4bb0c9b2343186501ffe513d79c37b84773601ef10963b0a707ac8d08d48"
-    },
-    {
-      "path": "src-tauri/src/claude.rs",
-      "bytes": 9114,
-      "sha256": "9840e172acde9c9adaf9c00091c79ac7753350a288e48298909e41c9bcc38eef"
-    },
-    {
-      "path": "src-tauri/src/codex.rs",
-      "bytes": 30283,
-      "sha256": "0d0584f82fef78e62f8faab0f8d749a372631ff2a3a140903d9984172201aecd"
-    },
-    {
-      "path": "src-tauri/src/dock.rs",
-      "bytes": 28617,
-      "sha256": "283d8ae847a39165239324198ef33ab4cc28d51619da9eed9db49744fda9ea12"
-    },
-    {
-      "path": "src-tauri/src/dock_position.rs",
-      "bytes": 4290,
-      "sha256": "1b4dc879983928aca8aa6eefcd736a71d5d0f04e94b48739b489d5d8464703a1"
-    },
-    {
-      "path": "src-tauri/src/encoding.rs",
-      "bytes": 1120,
-      "sha256": "a95bfab0060b9ae945d6b75a6482d57e3b7f8746e69e445e6c150a56e75810b6"
-    },
-    {
-      "path": "src-tauri/src/files.rs",
-      "bytes": 17832,
-      "sha256": "d7891365a6a0b28d958d3cdebe9f490646d2d69199a8c14d07a0a0a3dbd45439"
-    },
-    {
-      "path": "src-tauri/src/hooks.rs",
-      "bytes": 20905,
-      "sha256": "e6a2837da06ff21d6d87cf0ff251497a267545dc77f55222bfc7ba70ff08d716"
-    },
-    {
-      "path": "src-tauri/src/integrations.rs",
-      "bytes": 28255,
-      "sha256": "c187fb4ee7beebb8c8d0f90a66484124cd8d71071b296946cc4d783bd7b6b9c7"
-    },
-    {
-      "path": "src-tauri/src/island.rs",
-      "bytes": 27438,
-      "sha256": "57afd14a99a7591e5399600583f0140d9ffa3d23d096020485d9b59160fcba1b"
-    },
-    {
-      "path": "src-tauri/src/lib.rs",
-      "bytes": 28752,
-      "sha256": "7711dce56b8ebf180591e2cac4991650044bc4e9bb802ae76c56598a0ba11732"
-    },
-    {
-      "path": "src-tauri/src/log.rs",
-      "bytes": 983,
-      "sha256": "7d7eded859ae2561dd74f5b7e2b655d671f1f19bce8a7f30802a5b90d32a5621"
-    },
-    {
-      "path": "src-tauri/src/main.rs",
-      "bytes": 168,
-      "sha256": "e25b6d739382624ae162a08aae1d8a45446dbfb1f45e673c71231e38fb0db242"
-    },
-    {
-      "path": "src-tauri/src/native_drop.rs",
-      "bytes": 12935,
-      "sha256": "4f8137d288bb1551f9643bab26a7ef15849cbaaad1aed36c152ddb0b22690655"
-    },
-    {
-      "path": "src-tauri/src/pipe.rs",
-      "bytes": 10245,
-      "sha256": "6274a66814270dbe02e1cb5167cfe58344b5402affa23987e344c73e163023eb"
-    },
-    {
-      "path": "src-tauri/src/projects.rs",
-      "bytes": 8803,
-      "sha256": "ba978a6dcfa479685b56e477323d1cf77156a76c3336ce854b771682291e44cc"
-    },
-    {
-      "path": "src-tauri/src/secrets.rs",
-      "bytes": 1377,
-      "sha256": "af2ff8851f7c11677360f6b9ac5989bef7c983d3ed714c6ced090b0182a1612c"
-    },
-    {
-      "path": "src-tauri/src/settings.rs",
-      "bytes": 5567,
-      "sha256": "948e25125ccff4f313872e47f051de7c3ec7255681ef0e304920c5281bee6ad5"
-    },
-    {
-      "path": "src-tauri/src/surfaces.rs",
-      "bytes": 1198,
-      "sha256": "272dd46729498054a873ceb62522282f613e20da290026dcc1ad78f2164147e4"
-    },
-    {
-      "path": "src-tauri/src/tray.rs",
-      "bytes": 1424,
-      "sha256": "e5fbe51543bcf0608b881d65d064c3dde11a69a4ef1f6e092e70c05090961f00"
-    },
-    {
-      "path": "src-tauri/src/win_user.rs",
-      "bytes": 1798,
-      "sha256": "24500c9fd9535c046d5720ebd096bd1e17398e1b9cfc3e9e6c46e525bac83649"
-    },
-    {
-      "path": "src-tauri/src/work.rs",
-      "bytes": 36459,
-      "sha256": "cc708f75c9fbe3428b60cfcfc4a8883d377f9d9a73f39acf1bd11b1d444542b3"
-    },
-    {
-      "path": "src-tauri/tauri.conf.json",
-      "bytes": 2156,
-      "sha256": "9cc35ae697328ca83d3b00ce6d244d261294132021cb8b5bc00d4f1e42ac70ac"
+      "bytes": 11458,
+      "sha256": "bd77fc3c040b8d96314242788169899b7ad659c0258d8eb1ef7e76cb8b705f82"
     },
     {
       "path": "tests/activity.test.mjs",
@@ -550,6 +550,11 @@
       "path": "tests/surfaces.test.mjs",
       "bytes": 2894,
       "sha256": "844454972a5be4d6eb8b3a461ebb09e8f3a2d159c575c01c58b34a8e82e32c35"
+    },
+    {
+      "path": "tests/work-history-discovery.browser.html",
+      "bytes": 2368,
+      "sha256": "689f7843c0a171a1143f60975c6ec3e6c4202af3b1b033598bf5cd80a0e2f1bd"
     },
     {
       "path": "tests/work-history.test.mjs",

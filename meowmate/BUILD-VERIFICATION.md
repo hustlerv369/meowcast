@@ -1,5 +1,12 @@
 # Public-source build verification
 
+Preview16, 2026-10-04: the stable source plus the Tasks history discovery fix passed TypeScript, Vite, 46 Node tests and the locked native release build. The new browser regression failed before the fix and passed afterward. Browser checks use a mocked native bridge and do not prove native desktop acceptance.
+
+Companion executable SHA256: 568f9522818ed2a85ccd468c07dea9f30279e63ff364e9b41b6adba7abfca9da
+Bytes: 5257216
+
+The experimental Gemini browser adapter remains excluded. Images uses the manual browser handoff.
+
 Preview15,2026-10-04: the stable preview14 source plus three reviewed fixes (compact Home, cat canvas pixel density, native pointer acceptance) passed TypeScript/Vite,46 Node tests and the final locked native release build. The extracted production pointer-acceptance function passed the stationary cursor/geometry/button/popup regression test.
 
 Companion executable SHA256:915452291dbbd212c91f35bd94fcc93364bf7ce4c69c364b55ba94d54f516c78
