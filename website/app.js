@@ -4,7 +4,7 @@
     { name: 'Notes', icon: '▤', description: 'A thought worth keeping', detail: 'Notes saves locally as you write. Search your notebook from the desktop launcher. This website illustration does not save notes.', keywords: 'write notebook thought local' },
     { name: 'Whiteboard', icon: '↗', description: 'Give an idea some room', detail: 'Use a pen or sticky notes, undo a stroke, and export a PNG. Whiteboard works offline in the app.', keywords: 'draw sketch pen sticky offline' },
     { name: 'Text studio', icon: 'Aa', description: 'Your words, your AI', detail: 'Build a prompt offline, or explicitly send text to a tested AI connection. Your own provider account and its limits apply.', keywords: 'ai prompt master translate text' },
-    { name: 'Meowmate', icon: 'cat', description: 'A little company', detail: 'Meowmate opens a separate companion dock. It uses its own conversations and connections. Its newest build still needs native acceptance testing.', keywords: 'cat companion assistant dock' }
+    { name: 'Meowmate', icon: 'cat', description: 'A little company', detail: 'Meowmate opens a separate companion dock, included with the Windows preview. It uses its own conversations and connections.', keywords: 'cat companion assistant dock' }
   ];
   const search = document.querySelector('#demo-search');
   const results = document.querySelector('#demo-results');
@@ -48,11 +48,34 @@
     document.querySelector('.launcher-brand img').src = `assets/cat-${light ? 'black' : 'white'}.png`; render();
   });
   render();
-  fetch('/download/status').then(response => response.ok ? response.json() : null).then(status => {
-    if (status?.ready !== true) return;
+  function enableDownload(url, message) {
     const download = document.querySelector('#windows-download');
-    download.href = '/download/windows'; download.removeAttribute('aria-disabled'); download.removeAttribute('tabindex');
-    download.textContent = 'Download Windows preview ↓';
-    document.querySelector('#download-status').textContent = 'Local Windows installer ready. Includes Meowcast and Meowmate.';
-  }).catch(() => { /* A static export keeps the explicit unavailable state. */ });
+    download.href = url; download.removeAttribute('aria-disabled'); download.removeAttribute('tabindex');
+    download.textContent = 'Download Windows preview.14 ↓';
+    document.querySelector('#download-status').textContent = message;
+  }
+  async function resolveDownload() {
+    const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.14';
+    const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.14/Meowcast.Setup.9.30.0-preview.14.exe';
+    if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
+      try {
+        const response = await fetch('/download/status');
+        const status = response.ok ? await response.json() : null;
+        if (status?.ready === true) {
+          enableDownload('/download/windows', 'Local Windows installer ready. Includes Meowcast and Meowmate.');
+          return;
+        }
+      } catch { /* Continue to the published-release check. */ }
+    }
+    try {
+      const response = await fetch('https://api.github.com/repos/hustlerv369/meowcast/releases/tags/v9.30.0-preview.14', { headers: { Accept: 'application/vnd.github+json' } });
+      if (!response.ok) return;
+      const release = await response.json();
+      if (release.draft === true || release.tag_name !== 'v9.30.0-preview.14' || release.html_url !== releaseUrl) return;
+      document.querySelector('#release-link').href = releaseUrl;
+      if (!Array.isArray(release.assets) || !release.assets.some(asset => asset.browser_download_url === assetUrl && asset.state === 'uploaded' && asset.size > 0)) return;
+      enableDownload(assetUrl, 'Windows preview.14 is available on GitHub. Includes Meowcast and Meowmate.');
+    } catch { /* Keep the unavailable state when GitHub cannot confirm the asset. */ }
+  }
+  void resolveDownload();
 })();
