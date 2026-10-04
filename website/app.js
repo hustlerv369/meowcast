@@ -55,6 +55,7 @@
     document.querySelector('#download-status').textContent = message;
   }
   async function resolveDownload() {
+    // The verified preview.14 URL is already in HTML. Optional metadata failures must never remove it.
     const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.14';
     const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.14/Meowcast.Setup.9.30.0-preview.14.exe';
     if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
@@ -75,7 +76,7 @@
       document.querySelector('#release-link').href = releaseUrl;
       if (!Array.isArray(release.assets) || !release.assets.some(asset => asset.browser_download_url === assetUrl && asset.state === 'uploaded' && asset.size > 0)) return;
       enableDownload(assetUrl, 'Windows preview.14 is available on GitHub. Includes Meowcast and Meowmate.');
-    } catch { /* Keep the unavailable state when GitHub cannot confirm the asset. */ }
+    } catch { /* Preserve the already verified static download when GitHub metadata is unavailable. */ }
   }
   void resolveDownload();
 })();

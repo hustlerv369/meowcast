@@ -6,7 +6,7 @@ English product website for the Windows preview, with an interactive launcher il
 
 Serve these files together: `index.html`, `style.css`, `app.js`, `assets/cat-black.png`, and `assets/cat-white.png`.
 
-The page checks the public GitHub API for [preview.14](https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.14). The download button becomes available only when that published release contains the uploaded Windows installer. A missing release, missing asset, draft, or failed API request keeps the button disabled; the release-notes link remains available. A restrictive Content Security Policy must allow connections to `https://api.github.com`.
+The exact installer for [preview.14](https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.14) is linked in the HTML after verifying its public upload and HTTP 200 response. Downloading works without JavaScript and during GitHub API outages or rate limits. Optional metadata checks cannot replace that known URL with an unknown asset. Update the pinned version only after the replacement installer has been uploaded and verified. A restrictive Content Security Policy may allow connections to `https://api.github.com` for optional metadata checks; the download itself does not depend on them.
 
 No application accounts, tracking, external fonts, forms, or AI provider calls are used by the website. Mac support and provider compatibility remain subject to the limits described on the page.
 
