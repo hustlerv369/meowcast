@@ -1,5 +1,5 @@
 {
-  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes.",
+  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes.",
   "files": [
     {
       "path": ".gitignore",
@@ -8,8 +8,8 @@
     },
     {
       "path": "BUILD-VERIFICATION.md",
-      "bytes": 816,
-      "sha256": "541a167e08408d95735bdd46701bccf4a4d6f8b1e2ee4fbaed5694f92b7a7933"
+      "bytes": 924,
+      "sha256": "22a0b81a5b2de410736d01b0f28d0d580e86400c640f4ec87499b5cefc8ef12b"
     },
     {
       "path": "Cargo.lock",

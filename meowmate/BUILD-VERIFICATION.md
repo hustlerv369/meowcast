@@ -1,10 +1,10 @@
 # Public-source build verification
 
-2026-10-04: TypeScript, Vite production build and 46 Node tests passed. Native Windows release compiled from this public source using locked Cargo dependencies in 2 minutes 38 seconds. No application was launched by this worker.
+Preview15,2026-10-04: the stable preview14 source plus three reviewed fixes (compact Home, cat canvas pixel density, native pointer acceptance) passed TypeScript/Vite,46 Node tests and the final locked native release build. The extracted production pointer-acceptance function passed the stationary cursor/geometry/button/popup regression test.
 
-The staged companion executable is built from this export, including the original minimal cat rendering, inline Codex model selection and latest Images prompt helper. There are no upstream WAVs in the frontend payload or companion bundle. The generated build/dependency directories are ignored and absent from the source manifest.
+Companion executable SHA256:915452291dbbd212c91f35bd94fcc93364bf7ce4c69c364b55ba94d54f516c78
+Bytes:5257216
 
-Executable SHA256: aff3e4277ecf77e8b4fa0cc00259ab9886a01d09331c7d3e1fe85ee6c734a2cb
-Bytes: 5257216
+The isolated build excludes the uncommitted experimental Gemini browser adapter. Images retains manual browser handoff in this release. A successful build is not native desktop or full multi-monitor acceptance. Installation and provider checks are separate.
 
-A successful build is not installed native acceptance or successful provider inference. Those checks remain separate.
+Preview14 historical build:46 Node tests, TypeScript/Vite and locked native release passed. Executable SHA256:aff3e4277ecf77e8b4fa0cc00259ab9886a01d09331c7d3e1fe85ee6c734a2cb.
