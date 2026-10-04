@@ -51,13 +51,13 @@
   function enableDownload(url, message) {
     const download = document.querySelector('#windows-download');
     download.href = url; download.removeAttribute('aria-disabled'); download.removeAttribute('tabindex');
-    download.textContent = 'Download Windows preview.14 ↓';
+    download.textContent = 'Download Windows preview.15 ↓';
     document.querySelector('#download-status').textContent = message;
   }
   async function resolveDownload() {
-    // The verified preview.14 URL is already in HTML. Optional metadata failures must never remove it.
-    const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.14';
-    const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.14/Meowcast.Setup.9.30.0-preview.14.exe';
+    // The verified preview.15 URL is already in HTML. Optional metadata failures must never remove it.
+    const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.15';
+    const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.15/Meowcast.Setup.9.30.0-preview.15.exe';
     if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
       try {
         const response = await fetch('/download/status');
@@ -69,13 +69,13 @@
       } catch { /* Continue to the published-release check. */ }
     }
     try {
-      const response = await fetch('https://api.github.com/repos/hustlerv369/meowcast/releases/tags/v9.30.0-preview.14', { headers: { Accept: 'application/vnd.github+json' } });
+      const response = await fetch('https://api.github.com/repos/hustlerv369/meowcast/releases/tags/v9.30.0-preview.15', { headers: { Accept: 'application/vnd.github+json' } });
       if (!response.ok) return;
       const release = await response.json();
-      if (release.draft === true || release.tag_name !== 'v9.30.0-preview.14' || release.html_url !== releaseUrl) return;
+      if (release.draft === true || release.tag_name !== 'v9.30.0-preview.15' || release.html_url !== releaseUrl) return;
       document.querySelector('#release-link').href = releaseUrl;
       if (!Array.isArray(release.assets) || !release.assets.some(asset => asset.browser_download_url === assetUrl && asset.state === 'uploaded' && asset.size > 0)) return;
-      enableDownload(assetUrl, 'Windows preview.14 is available on GitHub. Includes Meowcast and Meowmate.');
+      enableDownload(assetUrl, 'Windows preview.15 is available on GitHub. Includes Meowcast and Meowmate.');
     } catch { /* Preserve the already verified static download when GitHub metadata is unavailable. */ }
   }
   void resolveDownload();
