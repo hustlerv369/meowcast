@@ -6,3 +6,14 @@
 .download-button{display:table;margin:25px auto 0;font-size:15px}.download-button[aria-disabled=true]{background:#e8e8e5;color:#595959;cursor:default}
 
 .nav .button{background:transparent;color:#202020;border:1px solid #20202040}.hero>.text-link{background:#202020;color:#fff;border-radius:999px;padding:10px 22px;margin-top:6px}.stage-caption{flex-wrap:wrap;gap:8px}.launcher-bottom{flex-wrap:wrap}.hero-foot{flex-wrap:wrap}
+
+/* Keep source access beside the primary download, including without JavaScript. */
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex-shrink:0}
+.nav .nav-actions .button{min-height:48px;font-size:16px;padding:10px 24px;gap:12px;margin-left:0}
+.nav .nav-actions .nav-download{background:#202020;color:#f7f7f5;border:1px solid #202020}
+.nav .nav-actions .nav-github{background:transparent;color:#202020;border:1px solid #20202060}
+.nav .nav-actions .button:hover{opacity:1;background:#333;color:#f7f7f5}
+.header-note{max-width:1320px;margin:0 auto;padding:0 48px 14px;font-size:14px;line-height:1.5;color:#202020}
+.header-note span{color:#595959}
+@media(max-width:1000px){.nav{gap:20px}.nav-links{display:none}.nav-actions{margin-left:auto}}
+@media(max-width:600px){.nav{height:auto;min-height:120px;flex-wrap:wrap;padding:10px 20px 12px;gap:8px}.nav-actions{width:100%;gap:10px}.nav .nav-actions .button{flex:1;padding:10px 16px;font-size:16px;min-height:48px}.header-note{padding:0 20px 12px}.header-note span{display:block}}

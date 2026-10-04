@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = __dirname;
 const appRoot = fs.existsSync(path.resolve(root, '../app/package.json')) ? path.resolve(root, '../app') : path.resolve(root, '..');
-const installerName = 'Meowcast Setup 9.30.0-preview.15.exe';
+const installerName = 'Meowcast Setup 9.30.0-preview.16.exe';
 const installer = path.join(appRoot, 'release', installerName);
 const installerReady = () => {
   try { return JSON.parse(fs.readFileSync(path.join(root, 'download-state.json'), 'utf8')).ready === true && fs.statSync(installer).isFile() && fs.statSync(installer).size > 0; } catch { return false; }
@@ -20,8 +20,8 @@ const server = http.createServer((request, response) => {
     response.end(request.method === 'HEAD' ? '' : JSON.stringify({ ready: installerReady() })); return;
   }
   if (['GET', 'HEAD'].includes(request.method) && pathname === '/download/windows') {
-    if (!installerReady()) { response.writeHead(503, { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '60' }); response.end('The Windows preview installer is still being prepared. Return to the website for its current status.'); return; }
-    response.writeHead(200, { 'Content-Type': 'application/vnd.microsoft.portable-executable', 'Content-Disposition': `attachment; filename="${installerName}"`, 'Content-Length': fs.statSync(installer).size, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+    if (!installerReady()) { response.writeHead(503, { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '60' }); response.end('The Windows installer is still being prepared. Return to the website for its current status.'); return; }
+    response.writeHead(200, { 'Content-Type': 'application/vnd.microsoft.portable-executable', 'Content-Disposition': `attachment; filename="Meowcast-Setup-Windows.exe"`, 'Content-Length': fs.statSync(installer).size, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
     if (request.method === 'HEAD') response.end(); else fs.createReadStream(installer).on('error', () => response.destroy()).pipe(response);
     return;
   }
