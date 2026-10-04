@@ -25,6 +25,7 @@ import { useSearchHistoryController } from "./SearchHistoryController";
 import { SearchResultList } from "./SearchResultList";
 import type { SearchResultListLayout } from "./SearchResultListLayout";
 import { useSearchViewController } from "./SearchViewController";
+import { ThemeToggle } from "./ThemeToggle";
 
 type SearchProps = {
     searchResultItems: SearchResultItem[];
@@ -350,14 +351,17 @@ export const Search = ({
                 >
                     <div className="studio-masthead">
                         <StudioWordmark />
-                        <button
-                            type="button"
-                            className="studio-text-button"
-                            onClick={() => window.dispatchEvent(new Event("studio:appearance"))}
-                        >
-                            <Settings16Regular aria-hidden="true" />
-                            {studioCopy.customize}
-                        </button>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <button
+                                type="button"
+                                className="studio-text-button"
+                                onClick={() => window.dispatchEvent(new Event("studio:appearance"))}
+                            >
+                                <Settings16Regular aria-hidden="true" />
+                                {studioCopy.customize}
+                            </button>
+                            <ThemeToggle />
+                        </div>
                     </div>
                     <SearchBar
                         refObject={userInput.ref}
