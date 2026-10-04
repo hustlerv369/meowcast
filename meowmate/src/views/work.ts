@@ -126,6 +126,13 @@ export function buildWork(): ViewHost {
       mergeWorkSnapshot(jobs,snapshot,requestedMs);
       projects=all??[];
       for(const picked of pickedProjects)if(!projects.some(p=>samePath(p.path,picked.path)))projects.push(picked);
+      // Finished jobs remain discoverable after their editor/session has closed.
+      // Starting another task still goes through native path and permission checks.
+      for(const job of jobs.values()){
+        if(job.project && !projects.some(p=>samePath(p.path,job.project))){
+          projects.push({path:job.project,label:job.projectName || job.project});
+        }
+      }
       const latest=project.value;
       project.setOptions([{value:"",label:"Choose a project"},...projects.map(p=>({value:p.path,label:p.label,detail:p.path}))]);
       if(selectionRevision!==revision)project.value=projects.some(p=>samePath(p.path,latest)) ? latest : "";

@@ -1,0 +1,66 @@
+name: macOS launcher preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-launcher-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Launcher (${{ matrix.arch }}, ad-hoc)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    env:
+      HUSTLE_SIGN_MAC: "0"
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Verify native architecture
+        run: |
+          case "$(uname -m)" in
+            arm64) actual=arm64 ;;
+            x86_64) actual=x64 ;;
+            *) exit 1 ;;
+          esac
+          test "$actual" = "${{ matrix.arch }}"
+      - name: Check and build launcher only
+        run: bash app/scripts/build-macos.sh
+      - name: Verify ad-hoc signature and record checksums
+        working-directory: app
+        run: |
+          set -euo pipefail
+          test -n "$(find release/mac -name Meowcast.app -type d -print -quit)"
+          find release/mac -name Meowcast.app -type d -print0 | while IFS= read -r -d '' bundle; do
+            codesign --verify --deep --strict "$bundle"
+          done
+          find release/mac -type f \( -name '*.dmg' -o -name '*.zip' \) -exec shasum -a 256 {} \; > release/mac/SHA256SUMS.txt
+          test -s release/mac/SHA256SUMS.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Meowcast-macOS-${{ matrix.arch }}-ad-hoc-${{ github.sha }}
+          path: |
+            app/release/mac/*.dmg
+            app/release/mac/*.zip
+            app/release/mac/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14

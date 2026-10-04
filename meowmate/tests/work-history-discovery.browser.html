@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><link rel="stylesheet" href="/src/style.css"><div id="fixture" style="width:700px;height:480px"></div>
+<script type="module">
+import {buildWork} from '/src/views/work.ts';
+import {Bridge} from '/src/core/bridge.ts';
+import {State} from '/src/core/state.ts';
+import {closeProjectPickers} from '/src/components/project-picker.ts';
+window.runHistoryDiscoveryChecks=async()=>{
+ const old={...Bridge};const tasks=State.tasks;const passed=[];
+ const check=(name,value)=>{if(!value)throw Error(name);passed.push(name);};
+ const a={id:'history-only-a',project:'D:\\HistoryOnlyA',projectName:'History project A',provider:'codex',model:'fixture',prompt:'First saved task',text:'Saved result A',step:null,error:null,status:'completed',startedMs:100,updatedMs:200};
+ const b={...a,id:'history-only-b',project:'D:\\HistoryOnlyB',projectName:'History project B',prompt:'Second saved task',text:'Saved result B',startedMs:101};
+ try{
+  State.tasks=[];Bridge.projectTargets=async()=>[];Bridge.workList=async()=>[a,b];
+  Bridge.workAuth=async()=>({connected:true,provider:'codex',message:'Fixture'});
+  Bridge.chatStatus=async()=>({connected:true,model:'fixture',models:[{id:'fixture',label:'Fixture'}],message:'Fixture'});
+  const view=buildWork();document.querySelector('#fixture').replaceChildren(view.el);view.el.classList.add('on');view.focus();
+  for(let i=0;i<30&&!view.el.querySelector('.work-status').textContent.includes('Signed in');i++)await new Promise(r=>setTimeout(r,10));
+  view.el.querySelector('.work-project').click();
+  let options=[...document.querySelectorAll('[role=option]')];
+  const first=options.find(n=>n.textContent.includes('History project A'));
+  check('persisted project available without running activity',!!first);first.click();
+  check('first saved result discoverable',view.el.querySelector('.work-result').textContent==='Saved result A');
+  view.el.querySelector('.work-project').click();options=[...document.querySelectorAll('[role=option]')];options.find(n=>n.textContent.includes('History project B')).click();
+  check('second saved result discoverable',view.el.querySelector('.work-result').textContent==='Saved result B');
+  closeProjectPickers();return{passed:passed.length,checks:passed};
+ }finally{Object.assign(Bridge,old);State.tasks=tasks;closeProjectPickers();}
+};
+</script></html>
