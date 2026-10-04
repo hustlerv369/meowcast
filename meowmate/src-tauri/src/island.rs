@@ -63,6 +63,14 @@ pub struct IslandRect {
     pub h: f64,
 }
 
+fn accepts_pointer(rect: IslandRect, x: f64, y: f64, size: (f64, f64), down: bool, held: bool) -> bool {
+    let on_island = rect.w > 0.0 && rect.h > 0.0
+        && x >= rect.x - HIT_MARGIN && x <= rect.x + rect.w + HIT_MARGIN
+        && y >= rect.y - HIT_MARGIN && y <= rect.y + rect.h + HIT_MARGIN;
+    let in_panel = x >= 0.0 && x <= size.0 && y >= 0.0 && y <= size.1;
+    on_island || ((down || held) && in_panel)
+}
+
 /// Wakes / parks the cursor poll thread so a hidden island costs literally nothing.
 pub struct PollGate {
     active: Mutex<bool>,
@@ -431,7 +439,8 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
 
                 let Some(win) = window(&app) else { continue };
                 let Ok(origin) = win.outer_position() else { continue };
-                let scale = crate::dock::placement().map(|p|p.scale).unwrap_or_else(||win.scale_factor().unwrap_or(1.0));
+                // Hit coordinates belong to this WebView, not the dock's cached monitor.
+                let scale = win.scale_factor().unwrap_or(1.0);
                 let Some((cx, cy)) = cursor_physical() else { continue };
                 let x = (cx - origin.x as f64) / scale;
                 let y = (cy - origin.y as f64) / scale;
@@ -440,21 +449,12 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
                     Err(_) => (PANEL_W, PANEL_H),
                 };
                 let dock=crate::dock::pointer_bridge(&app,POINT{x:cx as i32,y:cy as i32});
-                if (x - last.0).abs() < 1.0 && (y - last.1).abs() < 1.0 && dock==last_dock {
-                    continue;
-                }
-                last = (x, y);
-                last_dock=dock;
+                let cursor_changed = (x - last.0).abs() >= 1.0 || (y - last.1).abs() >= 1.0 || dock != last_dock;
 
                 // Click-through: the window only takes the mouse over the island
                 // shape. A small entry margin means the flag is already off by the
                 // time a moving cursor reaches a button.
                 let r = *gate.rect.lock().unwrap();
-                let on_island = r.w > 0.0
-                    && x >= r.x - HIT_MARGIN
-                    && x <= r.x + r.w + HIT_MARGIN
-                    && y >= r.y - HIT_MARGIN
-                    && y <= r.y + r.h + HIT_MARGIN;
 
                 // A file being dragged has to be able to find us. WS_EX_TRANSPARENT
                 // — what click-through is on Windows — hides the window from
@@ -465,19 +465,19 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
                 // the mouse, which also makes the drop zone as forgiving as the Mac's.
                 let down = left_button_down();
 
-                let dragging = down
-                    && x >= 0.0
-                    && x <= size.0
-                    && y >= 0.0
-                    && y <= size.1;
-
-                let accept = on_island || dragging || (gate.ui_hold.load(Ordering::Relaxed) && x>=0.0 && x<=size.0 && y>=0.0 && y<=size.1);
+                let accept = accepts_pointer(r, x, y, size, down, gate.ui_hold.load(Ordering::Relaxed));
                 if gate.ignoring.load(Ordering::Relaxed) == accept {
                     gate.ignoring.store(!accept, Ordering::Relaxed);
                     let _ = win.set_ignore_cursor_events(!accept);
                 }
 
-                let _ = win.emit("cursor", CursorPayload { x, y, dock });
+                // Geometry, popup hold and button state can change under a stationary cursor.
+                // Always update native hit acceptance; suppress only redundant renderer events.
+                if cursor_changed {
+                    last = (x, y);
+                    last_dock=dock;
+                    let _ = win.emit("cursor", CursorPayload { x, y, dock });
+                }
             }
         }
     });
@@ -492,6 +492,19 @@ pub fn set_ignore_cursor(app: &AppHandle, ignore: bool) {
 #[cfg(test)]
 mod dock_geometry {
     use super::*;
+
+    #[test]
+    fn stationary_pointer_reacts_to_shape_button_and_popup_changes() {
+        let small = IslandRect { x: 0.0, y: 0.0, w: 100.0, h: 100.0 };
+        let large = IslandRect { w: 600.0, h: 480.0, ..small };
+        let size = (720.0, 520.0);
+        assert!(!accepts_pointer(small, 400.0, 200.0, size, false, false));
+        assert!(accepts_pointer(large, 400.0, 200.0, size, false, false));
+        assert!(accepts_pointer(small, 400.0, 200.0, size, true, false));
+        assert!(accepts_pointer(small, 400.0, 200.0, size, false, true));
+        assert!(!accepts_pointer(small, 800.0, 200.0, size, true, true));
+        assert!(!accepts_pointer(IslandRect::default(), 0.0, 0.0, size, false, false));
+    }
 
     #[test]
     fn explicit_restore_retains_iconic_state_until_tao_restores_it() {

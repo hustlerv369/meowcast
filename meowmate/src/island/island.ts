@@ -72,7 +72,6 @@ export class Island {
   private running = false;
   private lastFrame = 0;
   private dirty = true;
-  private canvasPx = 0;
 
   // The native app starts minimized; only an explicit taskbar/tray restore opens it.
   private collapsed = IS_TAURI;
@@ -634,7 +633,7 @@ export class Island {
       }
       this.updatePreviewClose();
     });
-    window.addEventListener("resize", () => this.applyGeometry());
+    window.addEventListener("resize", () => { this.applyGeometry(); this.ensureRunning(); });
     // The wake strip is the only thing the OS can hit while the island is hidden.
     this.wakeStrip.addEventListener("mouseenter", () => {
       Sound.resume();
@@ -875,11 +874,12 @@ export class Island {
     const size = this.botSize.value;
     const w = Math.max(1, Math.round(size));
     const hCss = w + BOT_OVERHANG;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (this.canvasPx !== w) {
-      this.canvasPx = w;
-      this.botCanvas.width = Math.round(w * dpr);
-      this.botCanvas.height = Math.round(hCss * dpr);
+    const dpr = window.devicePixelRatio || 1;
+    const pixelWidth = Math.round(w * dpr);
+    const pixelHeight = Math.round(hCss * dpr);
+    if (this.botCanvas.width !== pixelWidth || this.botCanvas.height !== pixelHeight) {
+      this.botCanvas.width = pixelWidth;
+      this.botCanvas.height = pixelHeight;
       this.botCanvas.style.width = `${w}px`;
       this.botCanvas.style.height = `${hCss}px`;
     }

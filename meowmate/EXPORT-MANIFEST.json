@@ -1,5 +1,5 @@
 {
-  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes.",
+  "scope": "Public Windows source. Original Meowmate cat PNG/ICO files are intentional source assets. Generated/dependency/build directories excluded. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes. Hashes describe Git-staged normalized file bytes.",
   "files": [
     {
       "path": ".gitignore",
@@ -158,8 +158,8 @@
     },
     {
       "path": "src/core/layout.ts",
-      "bytes": 7984,
-      "sha256": "ba7faa16ac60c98dc7161395b169d4de6ea2f97f0eca5d091b4888de6f9a31ae"
+      "bytes": 8032,
+      "sha256": "0d91256466a62cb937dae401e174bdb63499ca39be04701cd6bc5178131bf6c7"
     },
     {
       "path": "src/core/popup-preview.ts",
@@ -218,8 +218,8 @@
     },
     {
       "path": "src/island/island.ts",
-      "bytes": 37630,
-      "sha256": "35f5cbe088f2ac178484840825933fa375c9212a304d36fa6c9ca4f7806ebc97"
+      "bytes": 37724,
+      "sha256": "90c1894d9df0e967b48bb61eca2bc5b43ecd2ef526500bc27c6825924b85125f"
     },
     {
       "path": "src/main.ts",
@@ -423,8 +423,8 @@
     },
     {
       "path": "src-tauri/src/island.rs",
-      "bytes": 26476,
-      "sha256": "f5b07af05ba4b02f8219f1704c45054d137cbeedf9e084c6542917fd24050a95"
+      "bytes": 27438,
+      "sha256": "57afd14a99a7591e5399600583f0140d9ffa3d23d096020485d9b59160fcba1b"
     },
     {
       "path": "src-tauri/src/lib.rs",

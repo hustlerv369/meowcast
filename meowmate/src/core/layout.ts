@@ -115,7 +115,7 @@ export function islandSize(
       return { w: COMPACT_W, h: NOTCH_H };
     case "expanded": {
       const h = view === "prompt" ? chatPromptHeight(chatCount) : VIEW_LAYOUTS[view].height;
-      return { w: EXPANDED_W, h };
+      return { w: view === "overview" || view === "empty" ? 600 : EXPANDED_W, h };
     }
   }
 }
