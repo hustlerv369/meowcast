@@ -1,0 +1,100 @@
+.notes-workspace {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 24px;
+    height: 100%;
+    min-height: 360px;
+    padding: 12px;
+    color: var(--studio-text);
+}
+.notes-sidebar,
+.notes-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+}
+.notes-workspace label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.notes-workspace input,
+.notes-workspace textarea {
+    background: var(--studio-control);
+    color: var(--studio-text);
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 44px;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    width: 100%;
+}
+.notes-workspace :is(input, textarea, button):focus-visible {
+    outline: 2px solid var(--studio-accent);
+    outline-offset: 3px;
+}
+.notes-body {
+    flex: 1;
+    min-height: 160px;
+}
+.notes-body textarea {
+    flex: 1;
+    resize: vertical;
+    line-height: 1.6;
+    min-height: 160px;
+}
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    min-height: 0;
+}
+.notes-list button {
+    border: 0;
+    border-radius: 12px;
+    background: var(--studio-control);
+    color: var(--studio-text);
+    min-height: 44px;
+    padding: 10px 12px;
+    text-align: left;
+    font: inherit;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+.notes-list button[aria-pressed="true"] {
+    background: var(--studio-text);
+    color: var(--studio-bg);
+    font-weight: 600;
+}
+.notes-actions {
+    display: flex;
+    gap: 8px;
+}
+.notes-editor p,
+.notes-sidebar p,
+.notes-privacy {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--studio-muted);
+    margin: 0;
+}
+.notes-empty {
+    padding: 24px;
+}
+.notes-privacy {
+    padding: 12px 24px;
+}
+@media (max-width: 680px) {
+    .notes-workspace {
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 12px;
+    }
+}

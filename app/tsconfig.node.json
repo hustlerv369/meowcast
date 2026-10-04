@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "composite": true,
+        "module": "ESNext",
+        "noUnusedLocals": true,
+        "paths": {
+            "@common/*": ["./src/common/*"],
+            "@Core/*": ["./src/main/Core/*"]
+        },
+        "strict": true,
+        "resolveJsonModule": true,
+        "rootDir": "./src",
+        "skipLibCheck": true
+    }
+}

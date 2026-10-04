@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="cs">
+<meta charset="utf-8">
+<title>Project picker browser checks</title>
+<link rel="stylesheet" href="/src/components/project-picker.css">
+<style>body{margin:0;background:#0e0f11;color:#f5f6f8;font-family:"Segoe UI",sans-serif}.fixture{position:absolute;left:90px;top:36px;width:400px}#outside{position:absolute;left:10px;bottom:10px}#output{position:absolute;left:90px;bottom:15px;font-size:12px}</style>
+<div class="fixture" id="fixture"></div>
+<button id="outside">Mimo výběr</button>
+<output id="output"></output>
+<script type="module">
+import { createProjectPicker, isProjectPickerOpen, closeProjectPickers } from '/src/components/project-picker.ts';
+const choices = [
+  {value:'none',label:'Vyber projekt',disabled:true},
+  {value:'codex',label:'Červený projekt',detail:'Codex · D:\\Projects\\Client A',color:'#34D399'},
+  {value:'claude',label:'Claude projekt',detail:'Claude Code · D:\\Projects\\Client B',color:'#F5A06A'},
+  {value:'markup',label:'<img src=x onerror=alert(1)>',detail:'Obsah z projektu zůstává text'},
+  ...Array.from({length:12},(_,i)=>({value:`p${i}`,label:`Projekt ${i}`,detail:`D:\\Projects\\Složka ${i}`})),
+];
+const changes = [];
+const events = [];
+window.addEventListener('project-picker-change', event => events.push(event.detail.open));
+const picker = createProjectPicker({label:'Projekt',options:choices,onChange:value=>changes.push(value)});
+document.querySelector('#fixture').append(picker.el);
+picker.el.style.width='320px';
+window.pickerFixture = { picker, choices, changes, events, isProjectPickerOpen, closeProjectPickers };
+window.runPickerChecks = async () => {
+  const passed = [];
+  const check = (name, condition) => {if(!condition)throw new Error(name);passed.push(name);};
+  const key = (target, name) => target.dispatchEvent(new KeyboardEvent('keydown',{key:name,bubbles:true,cancelable:true}));
+  picker.el.click();
+  check('open state and focus',isProjectPickerOpen() && document.activeElement.matches('.project-picker-search'));
+  check('label injection remains text',!document.querySelector('.project-picker-popover img'));
+  const search = document.querySelector('.project-picker-search');
+  search.value='cerveny'; search.dispatchEvent(new Event('input',{bubbles:true}));
+  check('search matches Czech name',document.querySelectorAll('[role=option]').length===1);
+  key(search,'Enter');
+  check('select closes and restores focus',picker.value==='codex' && !isProjectPickerOpen() && document.activeElement===picker.el);
+  key(picker.el,'ArrowUp');
+  check('ArrowUp highlights last enabled choice',document.querySelector('.is-active .project-picker-name').textContent==='Projekt 11');
+  key(document.activeElement,'Home');
+  check('Home skips disabled placeholder',document.querySelector('.is-active .project-picker-name').textContent==='Červený projekt');
+  key(document.activeElement,'ArrowDown'); key(document.activeElement,'Enter');
+  check('keyboard selects next choice',picker.value==='claude' && changes.at(-1)==='claude');
+  picker.el.click();
+  key(document.activeElement,'Escape');
+  check('Escape closes without changing selection',picker.value==='claude' && !isProjectPickerOpen());
+  picker.el.click();
+  document.querySelector('#outside').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+  check('outside pointer closes',!isProjectPickerOpen());
+  picker.el.click(); document.querySelector('#outside').focus();
+  check('outside focus closes without stealing focus',!isProjectPickerOpen() && document.activeElement.id==='outside');
+  picker.el.click();
+  const query = document.querySelector('.project-picker-search'); query.value='Složka 11'; query.dispatchEvent(new Event('input',{bubbles:true}));
+  const previousOption = document.querySelector('[role=option]');
+  picker.setOptions(choices.map(choice=>({...choice})));
+  picker.value=picker.value;
+  check('unchanged snapshot preserves option DOM',previousOption===document.querySelector('[role=option]'));
+  check('metadata refresh keeps search open',isProjectPickerOpen() && document.querySelector('.project-picker-search').value==='Složka 11');
+  const bounds=document.querySelector('.project-picker-popover').getBoundingClientRect();
+  check('menu remains in viewport',bounds.left>=0 && bounds.right<=innerWidth && bounds.top>=0 && bounds.bottom<=innerHeight);
+  picker.el.remove(); await Promise.resolve();
+  check('detaching trigger closes portal',!isProjectPickerOpen() && !document.querySelector('.project-picker-popover'));
+  document.querySelector('#fixture').append(picker.el);
+  check('open-close host events paired',events[0]===true && events.at(-1)===false);
+  picker.setOptions(choices.slice(0,3)); picker.el.click();
+  check('short menu uses focusable listbox',document.activeElement.getAttribute('role')==='listbox');
+  key(document.activeElement,'End'); key(document.activeElement,'Enter');
+  check('End selects last enabled choice',picker.value==='claude');
+  picker.setOptions(choices); picker.el.click();
+  check('reopening highlights current selection',document.querySelector('.is-active .project-picker-name').textContent==='Claude projekt');
+  closeProjectPickers();
+  document.querySelector('#output').textContent=`${passed.length} browser checks passed`;
+  return {passed:passed.length,checks:passed,changes,events};
+};
+</script>
+</html>

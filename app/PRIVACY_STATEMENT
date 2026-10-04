@@ -1,0 +1,26 @@
+Privacy information for Meowcast and Meowmate
+Updated: 4 October 2026
+
+Local data
+
+Settings, favorites, usage rankings, notes and whiteboards are stored on your computer. Clipboard history is optional; its capacity and persistence are configurable. Meowmate stores its own settings and task history separately. The apps retain legacy data-directory identifiers so upgrades can preserve existing data.
+
+AI connections
+
+AI features can use a configured API provider or a supported official subscription client. When you send a request, its prompt and explicitly attached content are passed to that provider or client. Project agents may read and edit the selected project and run commands under your Windows account, according to the agent's permissions. Official clients have their own settings, logs, retention policies and account requirements. Their privacy terms and usage charges apply.
+
+API credentials use the supported operating-system secure storage or a temporary session setting, depending on the selected connection. Subscription authentication stays with the official client. Credentials and personal profiles are not included in the public source repository. Do not enter secrets into prompts or issue reports.
+
+Other network features
+
+Search and integrations can contact the services they use, such as web search or translation providers. Weather and favicon extensions also use network services. Favicon lookups can reveal the requested domain to the selected favicon service. Opening a link launches the associated website. Disabling AI does not disable all network activity in other extensions. Review enabled extensions and their settings for your preferred setup.
+
+Images
+
+Prompt Master structures image prompts offline. Reference thumbnails remain local until you separately attach a file in Gemini. The browser handoff opens Google's website; it does not transfer browser credentials or submit a generation automatically. Your browser and Google account settings govern activity there.
+
+Source and control
+
+The public source is available for inspection and modification. Local data can be managed through the apps' settings and their user-data directories. Removing a file directly can erase saved content; back up anything you want to keep first.
+
+Questions: https://github.com/hustlerv369/meowcast/issues

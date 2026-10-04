@@ -1,0 +1,44 @@
+.images-card {
+  box-sizing: border-box;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 16px 20px;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font: 400 14px/1.4 var(--font);
+}
+.images-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.images-heading strong { font-size: 16px; font-weight: 600; }
+.images-heading span, .images-help, .images-feedback { color: var(--dim); font-size: 14px; }
+.images-help { margin: 0; }
+.images-prompt {
+  box-sizing: border-box; width: 100%; min-height: 70px; max-height: 110px;
+  resize: none; padding: 10px 12px; border: 1px solid var(--hairline);
+  border-radius: 12px; background: rgba(128,128,128,.08); color: var(--ink);
+  font: inherit;
+}
+.images-prompt::placeholder { color: var(--dim); }
+.images-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.images-button {
+  min-height: 44px; padding: 8px 14px; border-radius: 12px;
+  border: 1px solid var(--hairline); background: rgba(128,128,128,.12);
+  color: var(--ink); font: inherit; font-weight: 600; cursor: pointer;
+}
+.images-button:hover:not(:disabled) { background: rgba(128,128,128,.22); }
+.images-button:disabled { opacity: .5; cursor: default; }
+.images-button:focus-visible, .images-prompt:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.images-feedback { min-height: 20px; }
+.images-options { display: flex; flex-wrap: wrap; gap: 10px; }
+.images-option { flex: 1; min-width: 130px; display: flex; flex-direction: column; gap: 4px; }
+.images-option select, .images-file { font: inherit; color: var(--ink); min-height: 44px; max-width: 100%; }
+.images-option select { border: 1px solid var(--hairline); background: var(--bg); padding: 8px; border-radius: 10px; }
+.images-attach { display: flex; flex-direction: column; gap: 6px; }
+.images-file::file-selector-button { min-height: 44px; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--hairline); border-radius: 10px; padding: 8px 12px; margin-right: 8px; cursor: pointer; }
+.images-reference { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.images-reference[hidden] { display: none; }
+.images-thumbnail { width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: rgba(128,128,128,.08); }
+.images-reference-name { flex: 1; min-width: 100px; overflow-wrap: anywhere; }
+.images-option select:focus-visible, .images-file:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

@@ -1,0 +1,62 @@
+/* Meowcast Graphite. System appearance; no profile or backend changes. */
+:root {
+  color-scheme: dark;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "Cascadia Mono", Consolas, monospace;
+  --bg: #202020;
+  --ink: #f5f5f5;
+  --ink-2: #f5f5f5;
+  --dim: #bfbfbf;
+  --dim-2: #bfbfbf;
+  --dim-3: #bfbfbf;
+  --dim-4: #8c8c8c;
+  --dim-5: #8c8c8c;
+  --card: #282828;
+  --card-flat: #202020;
+  --tab-on: #484848;
+  --control: #404040;
+  --hairline: #4a4a4a;
+  --accent: #d0d0d0;
+  --on-accent: #202020;
+  --red: #f4505e;
+  --red-text: #ff8d97;
+  --green: #22c55e;
+  --green-2: #34d399;
+  --amber: #f5a524;
+  --cyan: #22d3ee;
+  --indigo: #6366f1;
+  --pink: #f472b6;
+}
+/* Pickers are portals shared by the island and Settings. */
+.project-picker.project-picker, .project-picker-popover.project-picker-popover {
+  font: 400 14px/1.4 var(--font); color: var(--ink); border-color: var(--hairline);
+}
+.project-picker.project-picker:hover, .project-picker.project-picker[aria-expanded="true"],
+.project-picker-option.project-picker-option.is-active { background: var(--tab-on); }
+.project-picker-option[aria-selected="true"] .project-picker-name,
+.project-picker-check.project-picker-check { color: var(--ink); font-weight: 600; }
+.project-picker-detail.project-picker-detail, .project-picker-empty.project-picker-empty,
+.project-picker-search.project-picker-search::placeholder { color: var(--dim); font-size: 14px; }
+.project-picker-search.project-picker-search:focus { border-color: var(--accent); }
+.project-picker.project-picker:focus-visible { outline-color: var(--accent); }
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #eeeeee;
+    --ink: #242424;
+    --ink-2: #242424;
+    --dim: #505050;
+    --dim-2: #505050;
+    --dim-3: #505050;
+    --dim-4: #686868;
+    --dim-5: #686868;
+    --card: #f5f5f5;
+    --card-flat: #eeeeee;
+    --tab-on: #dddddd;
+    --control: #cacaca;
+    --hairline: #9c9c9c;
+    --accent: #505050;
+    --on-accent: #ffffff;
+    --red-text: #a51d2a;
+  }
+}

@@ -1,0 +1,448 @@
+.ai-studio {
+    color: var(--studio-text);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    font-family: inherit;
+}
+.ai-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+}
+.ai-heading strong {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.45px;
+}
+.ai-heading span {
+    font-size: 14px;
+    color: var(--studio-muted);
+}
+.ai-action-strip {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+    padding: 8px 24px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+.ai-action-strip button {
+    flex-shrink: 0;
+    border: 0;
+    background: var(--studio-control);
+    color: var(--studio-text);
+    min-height: 44px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    transition:
+        background 160ms ease-out,
+        box-shadow 160ms ease-out;
+}
+.ai-action-strip button:hover {
+    background: var(--studio-selection);
+    color: var(--studio-text);
+}
+.ai-action-strip button[aria-pressed="true"] {
+    background: var(--studio-text);
+    color: var(--studio-bg);
+    font-weight: 600;
+    box-shadow: 0 3px 12px color-mix(in srgb, var(--studio-text) 5%, transparent);
+}
+.ai-columns {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.ai-input-pane,
+.ai-result-pane {
+    padding: 8px 28px 16px;
+    min-width: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.ai-result-pane {
+    background: color-mix(in srgb, var(--studio-surface) 24%, transparent);
+    border-radius: 18px;
+    margin: 0 8px 8px 0;
+}
+.ai-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    min-height: 32px;
+}
+.ai-section-title h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin: 0;
+    color: var(--studio-text);
+}
+.ai-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.ai-field small {
+    display: inline;
+    margin-left: 6px;
+    font-weight: 400;
+    color: var(--studio-muted);
+    font-size: 14px;
+}
+.ai-field textarea {
+    line-height: 1.65;
+    font-weight: 400;
+    min-height: 60px;
+    max-height: 240px;
+    padding: 10px 14px;
+}
+.ai-studio .fui-Textarea,
+.ai-studio .fui-Input,
+.ai-settings .fui-Textarea,
+.ai-settings .fui-Input,
+.ai-settings .fui-Dropdown {
+    border: 0;
+    border-radius: 12px;
+    background: var(--studio-control);
+    color: var(--studio-text);
+    box-shadow: inset 0 1px 4px color-mix(in srgb, var(--studio-text) 2%, transparent);
+}
+.ai-studio .fui-Input,
+.ai-settings .fui-Input,
+.ai-settings .fui-Dropdown {
+    min-height: 44px;
+}
+.ai-studio .fui-Textarea::after,
+.ai-studio .fui-Input::after,
+.ai-settings .fui-Textarea::after,
+.ai-settings .fui-Input::after,
+.ai-settings .fui-Dropdown::after {
+    display: none;
+}
+/* Global input modality prevents a ring on pointer clicks and initial autofocus. */
+.ai-studio .fui-Textarea:focus-within,
+.ai-studio .fui-Input:focus-within,
+.ai-settings .fui-Textarea:focus-within,
+.ai-settings .fui-Input:focus-within,
+.ai-settings .fui-Dropdown:focus-within {
+    border: 0;
+    outline: none;
+}
+html[data-studio-keyboard="true"] .ai-studio .fui-Textarea:focus-within,
+html[data-studio-keyboard="true"] .ai-studio .fui-Input:focus-within,
+html[data-studio-keyboard="true"] .ai-settings .fui-Textarea:focus-within,
+html[data-studio-keyboard="true"] .ai-settings .fui-Input:focus-within,
+html[data-studio-keyboard="true"] .ai-settings .fui-Dropdown:focus-within {
+    outline: 2px solid var(--studio-accent);
+    outline-offset: 3px;
+}
+.ai-studio .fui-Button,
+.ai-footer .fui-Button,
+.ai-settings .fui-Button {
+    min-height: 44px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    padding-inline: 14px;
+    box-shadow: 0 2px 5px color-mix(in srgb, var(--studio-text) 4%, transparent);
+}
+.ai-text-button {
+    background: var(--studio-control);
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 44px;
+    color: var(--studio-text);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+.ai-text-button:hover {
+    background: var(--studio-selection);
+    color: var(--studio-text);
+}
+.ai-master-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    color: var(--studio-text);
+    padding: 12px;
+}
+.ai-master-toggle:hover {
+    background: var(--studio-selection);
+}
+.ai-master-toggle span {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--studio-muted);
+}
+.ai-master,
+.ai-editor {
+    padding: 12px 0 16px;
+}
+.ai-master p,
+.ai-editor p,
+.ai-disclosure p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--studio-muted);
+}
+.ai-prompt-preview,
+.ai-disclosure pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 200px;
+    overflow: auto;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+}
+.ai-disclosure {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--studio-muted);
+}
+.ai-disclosure summary {
+    cursor: pointer;
+    padding-block: 14px;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+.ai-result {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 72ch;
+}
+.ai-empty {
+    padding: 24px 2px;
+    max-width: 34ch;
+}
+.ai-empty span {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    line-height: 1.3;
+}
+.ai-empty p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--studio-muted);
+    margin-top: 10px;
+}
+.ai-error {
+    color: var(--colorStatusDangerForeground1);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.ai-status {
+    font-size: 14px;
+    color: var(--studio-muted);
+    line-height: 1.65;
+}
+.ai-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+.ai-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 28px;
+}
+.ai-provider {
+    min-width: 0;
+    max-width: 55%;
+    overflow-wrap: anywhere;
+}
+.ai-provider > summary {
+    min-height: 44px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--studio-control);
+    color: var(--studio-text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ai-provider > summary:hover {
+    background: var(--studio-selection);
+}
+.ai-provider[open] {
+    max-height: 160px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.ai-provider[open] > :not(summary) {
+    display: block;
+    padding: 6px 14px 0;
+}
+.ai-provider strong {
+    font-size: 14px;
+    font-weight: 600;
+}
+.ai-provider span {
+    font-size: 14px;
+    color: var(--studio-muted);
+}
+html[data-studio-keyboard="true"] .ai-studio button:focus-visible,
+html[data-studio-keyboard="true"] .ai-studio summary:focus-visible,
+html[data-studio-keyboard="true"] .ai-result:focus-visible {
+    outline: 2px solid var(--studio-accent);
+    outline-offset: 3px;
+}
+.ai-studio button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+.ai-capture {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.ai-capture span {
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--studio-muted);
+    line-height: 1.5;
+}
+.ai-settings {
+    color: var(--studio-text);
+    font-family: inherit;
+}
+.ai-settings {
+    container-type: inline-size;
+}
+.ai-settings .studio-setting-row-inner {
+    display: grid !important;
+    grid-template-columns: minmax(140px, 0.7fr) minmax(300px, 1fr);
+    gap: 24px;
+    align-items: start !important;
+}
+.ai-settings .studio-setting-label {
+    min-width: 0;
+    max-width: none;
+}
+.ai-settings .studio-setting-control {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+.ai-settings .studio-setting-control > .fui-Input,
+.ai-settings .studio-setting-control > .fui-Textarea,
+.ai-settings .studio-setting-control > .fui-Dropdown {
+    width: 100%;
+    box-sizing: border-box;
+}
+@container (max-width: 560px) {
+    .ai-settings .studio-setting-row-inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+}
+.ai-settings .fui-Body1 {
+    font-weight: 600;
+    font-size: 14px;
+}
+.ai-settings .fui-Caption1 {
+    display: block;
+    color: var(--studio-muted);
+    font-size: 14px;
+    line-height: 1.65;
+    margin-top: 6px;
+}
+.ai-settings .fui-Textarea {
+    width: 100%;
+}
+.ai-settings .fui-Textarea textarea {
+    padding: 12px 14px;
+    line-height: 1.65;
+}
+.ai-settings .studio-setting-row button {
+    white-space: normal;
+}
+@media (max-width: 700px) {
+    .ai-studio {
+        overflow: auto;
+    }
+    .ai-columns {
+        display: block;
+        min-height: auto;
+    }
+    .ai-input-pane,
+    .ai-result-pane {
+        overflow: visible;
+        padding: 16px 22px 24px;
+    }
+    .ai-result-pane {
+        border-radius: 20px 20px 0 0;
+    }
+    .ai-heading span {
+        display: none;
+    }
+    .ai-empty {
+        padding: 24px 0;
+    }
+    .ai-footer {
+        padding: 14px 22px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ai-action-strip button {
+        transition: none;
+    }
+}
+
+.ai-studio .fui-Button:hover,
+.ai-footer .fui-Button:hover,
+.ai-settings .fui-Button:hover,
+.ai-studio .fui-Textarea:hover,
+.ai-studio .fui-Input:hover,
+.ai-settings .fui-Textarea:hover,
+.ai-settings .fui-Input:hover,
+.ai-settings .fui-Dropdown:hover {
+    border: 0;
+}
+.ai-studio textarea,
+.ai-settings textarea,
+.ai-studio input,
+.ai-settings input {
+    outline: none;
+}
+
+.ai-studio textarea,
+.ai-settings textarea,
+.ai-studio input,
+.ai-settings input,
+.ai-settings .fui-Dropdown button {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+}

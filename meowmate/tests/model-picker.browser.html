@@ -1,0 +1,56 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="/src/style.css"><div id="fixture" style="width:700px;height:500px"></div><script type="module">
+import {buildPrompt} from '/src/views/chat.ts';
+import {buildWork} from '/src/views/work.ts';
+import {Bridge} from '/src/core/bridge.ts';
+import {State} from '/src/core/state.ts';
+import {closeProjectPickers} from '/src/components/project-picker.ts';
+const tick=()=>new Promise(r=>setTimeout(r,0));
+const settle=async()=>{for(let i=0;i<8;i++)await tick();};
+window.runModelChecks=async()=>{
+ const checks=[];const check=(name,ok)=>{if(!ok)throw Error(name);checks.push(name);};
+ const original={...Bridge};const oldSettings={...State.settings};const oldHistory=State.chatHistory;
+ let saves=0,resets=0,sentModel='';
+ Bridge.chatStatus=async(model)=>({connected:true,model:model===''?'model-a':State.settings.codexModel||'model-a',models:[{id:'model-a',label:'Model A'},{id:'model-b',label:'Model B'}],message:'Fixture'});
+ Bridge.chatReset=async()=>{resets++;};
+ Bridge.saveSettings=async()=>{saves++;};
+ const mount=v=>{document.querySelector('#fixture').replaceChildren(v.el);v.el.style.cssText='position:relative;opacity:1;height:480px';v.focus();return v;};
+ const choose=(selector,label)=>{document.querySelector(selector).click();const option=[...document.querySelectorAll('[role=option]')].find(o=>o.textContent.includes(label));if(!option)throw Error('Missing '+label);option.click();};
+ try{
+ State.settings.codexModel='model-a';State.chatHistory=[{id:1,role:'user',content:'Keep context'}];
+ let view=mount(buildPrompt(()=>{}));await settle();view.sync();
+ const input=view.el.querySelector('.chat-input');input.value='Preserve this draft';
+ choose('.inline-model','Model B');
+ check('history requires confirmation before persistence',saves===0 && !view.el.querySelector('.model-confirm').hidden);
+ view.el.querySelector('.model-confirm button:last-child').click();
+ check('keep current preserves model and history',State.settings.codexModel==='model-a' && State.chatHistory.length===1);
+ Bridge.saveSettings=async()=>{saves++;throw Error('Fixture save failure');};
+ choose('.inline-model','Model B');view.el.querySelector('.model-confirm button').click();await settle();
+ check('failed save rolls back picker and never resets',State.settings.codexModel==='model-a' && resets===0 && view.el.querySelector('.inline-model').textContent.includes('Model A'));
+ check('failed save preserves draft and history',input.value==='Preserve this draft' && State.chatHistory.length===1);
+ check('failed save visible',view.el.querySelector('.chat-feedback').textContent.includes('Fixture save failure'));
+ let resolveSave;Bridge.saveSettings=()=>new Promise(r=>{resolveSave=r;});
+ choose('.inline-model','Model B');view.el.querySelector('.model-confirm button').click();
+ check('saving locks picker and Send',view.el.querySelector('.inline-model').disabled && view.el.querySelector('.send-btn').disabled);
+ Bridge.chatReset=async()=>{resets++;throw Error('reset fail');};resolveSave();await settle();view.sync();
+ check('reset failure blocks send after saved model',State.settings.codexModel==='model-b' && view.el.querySelector('.send-btn').disabled && view.el.querySelector('.chat-feedback').textContent.includes('Choose New chat'));
+ Bridge.chatReset=async()=>{resets++;};view.el.querySelector('.chat-new').click();await settle();view.sync();
+ check('New chat recovers with draft intact',!view.el.querySelector('.send-btn').disabled && input.value==='Preserve this draft' && State.chatHistory.length===0);
+ let finishSend;Bridge.chatSend=()=>{sentModel=State.settings.codexModel;return new Promise(r=>finishSend=r);};
+ view.el.querySelector('.send-btn').click();view.sync();
+ check('send uses persisted selected model and locks picker',sentModel==='model-b' && view.el.querySelector('.inline-model').disabled);
+ finishSend({text:'Fixture'});await settle();
+ State.tasks=[];State.settings.codexModel='model-b';const before=saves;const beforeResets=resets;
+ Bridge.projectTargets=async()=>[{path:'D:/Fixture',label:'Fixture'}];Bridge.workList=async()=>[];Bridge.workAuth=async()=>({connected:true,message:'Fixture'});
+ let taskArgs,finishTask;Bridge.workStart=(...args)=>{taskArgs=args;return new Promise(r=>finishTask=r);};
+ view=mount(buildWork());await settle();
+ check('task default shows live effective model',view.el.querySelector('.work-model').textContent.includes('model-a'));
+ choose('.work-model','Model B');const draft=view.el.querySelector('.work-input');draft.value='Task';draft.dispatchEvent(new Event('input'));
+ view.el.querySelector('.work-controls .primary').click();
+ check('task sends local selected model',taskArgs?.[4]==='model-b');
+ check('task selection does not persist or reset Chat',saves===before && resets===beforeResets && State.settings.codexModel==='model-b');
+ check('starting task locks model picker',view.el.querySelector('.work-model').disabled);
+ finishTask(null);await settle();
+ return {passed:checks.length,checks};
+ }finally{Object.assign(Bridge,original);State.settings=oldSettings;State.chatHistory=oldHistory;closeProjectPickers();}
+};
+</script>

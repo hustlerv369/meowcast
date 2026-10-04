@@ -1,0 +1,85 @@
+.project-picker {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid #34383e;
+  border-radius: 10px;
+  background: var(--card-flat, #0e0f11);
+  color: var(--ink, #f5f6f8);
+  font: 500 12px/1.3 var(--font, "Segoe UI", sans-serif);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+.project-picker:hover, .project-picker[aria-expanded="true"] { background: #20252a; border-color: #64746b; }
+.project-picker:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.project-picker:disabled { opacity: .5; cursor: default; }
+.project-picker-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-picker-dot { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; }
+.project-picker-dot[hidden] { display: none; }
+.project-picker-arrow { flex: 0 0 5px; width: 5px; height: 5px; border: solid #a9b2b8; border-width: 0 1px 1px 0; transform: rotate(45deg); margin: -3px 1px 0 3px; }
+.project-picker.activity-session { max-width: 170px; border-radius: 10px; border-color: #34383e; }
+.project-picker.work-provider { width: 130px; flex: none; }
+.project-picker.work-history { font-size: 11px !important; }
+.project-picker-popover {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 5px;
+  overflow: hidden;
+  border: 1px solid #3e4743;
+  border-radius: 12px;
+  background: var(--card, #141518);
+  color: var(--ink, #f5f6f8);
+  font: 12px/1.35 var(--font, "Segoe UI", sans-serif);
+  box-shadow: 0 7px 22px #080b0e70;
+  animation: project-picker-in 150ms ease-out;
+}
+.project-picker-search {
+  box-sizing: border-box;
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  min-height: 31px;
+  margin-bottom: 5px;
+  padding: 6px 9px;
+  border: 1px solid #343d39;
+  border-radius: 8px;
+  outline: none;
+  background: var(--card-flat, #0e0f11);
+  color: var(--ink, #f5f6f8);
+  font: inherit;
+}
+.project-picker-search::placeholder { color: #a8b0b7; }
+.project-picker-search:focus { border-color: #34d399; }
+.project-picker-list { min-height: 0; overflow-y: auto; overscroll-behavior: contain; outline: none; }
+.project-picker-option { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+.project-picker-option.is-active { background: #25332d; }
+.project-picker-option[aria-selected="true"] .project-picker-name { color: #74e7b4; }
+.project-picker-option[aria-disabled="true"] { opacity: .55; cursor: default; }
+.project-picker-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.project-picker-name, .project-picker-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-picker-name { font-weight: 500; }
+.project-picker-detail { color: #adb5bc; font-size: 10px; }
+.project-picker-check { flex: 0 0 12px; color: #74e7b4; font-size: 12px; }
+.project-picker-empty { padding: 13px 9px; color: #adb5bc; }
+@keyframes project-picker-in { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .project-picker { transition: none; } .project-picker-popover { animation: none; } }
+
+/* Shared Meowcast palette, including the floating menu. */
+.project-picker, .project-picker-popover { font: 400 14px/1.4 var(--font); color: var(--ink); background: var(--control); border-color: var(--hairline); }
+.project-picker { min-height: 44px; }
+.project-picker-popover { background: var(--card); box-shadow: 0 8px 24px #0002; }
+.project-picker-search { min-height: 44px; background: var(--control); border-color: var(--hairline); }
+.project-picker-option { min-height: 44px; }
+.project-picker-option.is-active { background: var(--tab-on); }
+.project-picker-option[aria-selected="true"] .project-picker-name, .project-picker-check { color: var(--ink); }
+.project-picker-detail, .project-picker-empty, .project-picker-search::placeholder { color: var(--dim); font-size: 14px; }
+.project-picker-name { font-weight: 600; }
+.project-picker-search:focus { border-color: var(--accent); }

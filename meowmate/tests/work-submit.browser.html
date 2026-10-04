@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="cs">
+<meta charset="utf-8">
+<title>Work submission race checks</title>
+<link rel="stylesheet" href="/src/style.css">
+<style>body{background:#141518}#fixture{position:absolute;inset:8px}#fixture .view{position:relative;opacity:1;height:280px}</style>
+<div id="fixture"></div>
+<script type="module">
+import { buildWork } from '/src/views/work.ts';
+import { Bridge } from '/src/core/bridge.ts';
+import { State } from '/src/core/state.ts';
+import { closeProjectPickers } from '/src/components/project-picker.ts';
+const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
+window.runWorkSubmitChecks=async()=>{
+  const passed=[];
+  const check=(name,condition)=>{if(!condition)throw new Error(name);passed.push(name);};
+  const originals={projectTargets:Bridge.projectTargets,workList:Bridge.workList,workAuth:Bridge.workAuth,workStart:Bridge.workStart,chatStatus:Bridge.chatStatus};
+  const previousTasks=State.tasks;
+  State.tasks=[];
+  Bridge.projectTargets=async()=>[{path:'D:\\FixtureA',label:'Fixture A'},{path:'D:\\FixtureB',label:'Fixture B'}];
+  Bridge.workList=async()=>[];
+  Bridge.workAuth=async()=>({connected:true,message:'Fixture'});
+  Bridge.chatStatus=async()=>({connected:true,model:"fixture-model",models:[{id:"fixture-model",label:"Fixture model"}],message:"Fixture"});
+  try{
+    for(const kind of ['unchanged','draft','project','provider']){
+      let resolveStart, sent;
+      Bridge.workStart=(project,provider,prompt)=>{sent={project,provider,prompt};return new Promise(resolve=>{resolveStart=resolve;});};
+      const view=buildWork(); document.querySelector('#fixture').replaceChildren(view.el);view.focus();
+      for(let n=0;n<20 && !view.el.querySelector('.work-status').textContent.includes('Signed in');n++)await tick();
+      const input=view.el.querySelector('.work-input');
+      const run=view.el.querySelector('.work-controls .primary');
+      const draft=value=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));};
+      const choose=(selector,label)=>{
+        view.el.querySelector(selector).click();
+        const option=[...document.querySelectorAll('[role=option]')].find(el=>el.querySelector('.project-picker-name').textContent===label);
+        if(!option)throw new Error(`Missing ${label}`);option.click();
+      };
+      draft('Original instruction');run.click();
+      check(`${kind}: original request captured`,sent.project==='D:\\FixtureA' && sent.provider==='codex' && sent.prompt==='Original instruction');
+      if(kind==='draft')draft('New instruction');
+      if(kind==='project')choose('.work-project','Fixture B');
+      if(kind==='provider')choose('.work-provider','Claude Code');
+      const receivedAt=Date.now();
+      resolveStart({id:`fixture-${kind}`,project:sent.project,projectName:'Fixture A',provider:sent.provider,model:'fixture',prompt:sent.prompt,text:`Result ${kind}`,step:null,error:null,status:'completed',startedMs:receivedAt,updatedMs:receivedAt});
+      await tick();await tick();
+      if(kind==='unchanged'){
+        check('unchanged: acknowledged draft clears',input.value==='');
+        check('unchanged: result selected',view.el.querySelector('.work-result').textContent==='Result unchanged');
+      }else{
+        check(`${kind}: draft preserved`,input.value===(kind==='draft'?'New instruction':'Original instruction'));
+      }
+      if(kind==='project'){
+        check('project: previous result cannot replace current view',!view.el.querySelector('.work-result').textContent.includes('Result project'));
+        choose('.work-project','Fixture A');
+        check('project: acknowledgment still enters original history',view.el.querySelector('.work-result').textContent==='Result project');
+      }
+      closeProjectPickers();
+    }
+  }finally{Object.assign(Bridge,originals);State.tasks=previousTasks;closeProjectPickers();}
+  return {passed:passed.length,checks:passed};
+};
+</script>
+</html>

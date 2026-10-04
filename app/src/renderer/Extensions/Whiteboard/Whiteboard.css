@@ -1,0 +1,256 @@
+.wb-studio {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    color: var(--studio-text);
+    padding: 0 24px 12px;
+    gap: 12px;
+    box-sizing: border-box;
+}
+.wb-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-block: 8px;
+}
+.wb-tools {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--studio-surface);
+}
+.wb-studio button,
+.wb-footer button {
+    min-height: 44px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+.wb-tools button {
+    background: transparent;
+    color: var(--studio-text);
+    padding: 8px 14px;
+}
+.wb-tools button:hover {
+    background: var(--studio-selection);
+}
+.wb-tools button[aria-pressed="true"] {
+    background: var(--studio-text);
+    color: var(--studio-bg);
+    font-weight: 600;
+    box-shadow: none;
+}
+.wb-width {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--studio-muted);
+    font-size: 14px;
+}
+.wb-studio select {
+    border: 0;
+    border-radius: 10px;
+    background: var(--studio-surface);
+    color: var(--studio-text);
+    padding: 10px;
+    min-height: 44px;
+    font: inherit;
+    font-size: 16px;
+}
+.wb-colors {
+    display: flex;
+}
+.wb-colors button {
+    width: 44px;
+    background: transparent;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+.wb-colors span {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+.wb-colors small {
+    position: absolute;
+    color: #fafbfc;
+    font-size: 14px;
+}
+.wb-workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: auto;
+}
+.wb-paper {
+    width: min(100%, calc((100vh - 235px) * 1.578947));
+    flex: 0 1 auto;
+    min-width: 0;
+    aspect-ratio: 1200/760;
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 35px color-mix(in srgb, var(--studio-text) 5%, transparent);
+    background: #fafbfc;
+}
+.wb-paper canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    touch-action: none;
+    cursor: crosshair;
+}
+.wb-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: none;
+    color: #536072;
+    text-align: center;
+}
+.wb-empty strong {
+    font-size: 20px;
+    font-weight: 600;
+}
+.wb-empty span {
+    max-width: 38ch;
+    font-size: 16px;
+    line-height: 1.5;
+}
+.wb-notes {
+    flex: 0 0 200px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+    max-height: 100%;
+}
+.wb-notes h2 {
+    font-size: 20px;
+    margin: 4px 0;
+    font-weight: 600;
+}
+.wb-notes > span {
+    font-size: 14px;
+    color: var(--studio-muted);
+}
+.wb-notes .fui-Textarea {
+    border: 0;
+    border-radius: 12px;
+    background: var(--studio-surface);
+}
+.wb-notes .fui-Textarea::after {
+    display: none;
+}
+.wb-notes textarea {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 12px;
+    outline: none;
+}
+.wb-message {
+    font-size: 14px;
+    color: var(--studio-muted);
+    margin: 0;
+}
+.wb-confirm {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--studio-surface);
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+.wb-confirm span {
+    flex: 1;
+}
+.wb-footer {
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.wb-footer > span {
+    font-size: 14px;
+    color: var(--studio-muted);
+}
+.wb-footer > div {
+    display: flex;
+    gap: 8px;
+}
+.wb-footer .wb-save:not(:disabled) {
+    background: var(--studio-text);
+    color: var(--studio-bg);
+    font-weight: 600;
+}
+.wb-footer .wb-save:not(:disabled):hover {
+    background: color-mix(in srgb, var(--studio-text) 88%, var(--studio-bg));
+}
+.wb-footer .wb-clear {
+    background: transparent;
+    box-shadow: none;
+}
+.wb-footer .wb-clear:not(:disabled) {
+    color: var(--studio-muted);
+}
+.wb-footer .wb-export:not(:disabled) {
+    background: var(--studio-surface);
+    color: var(--studio-text);
+}
+.wb-footer .wb-clear:not(:disabled):hover,
+.wb-footer .wb-export:not(:disabled):hover {
+    background: var(--studio-selection);
+    color: var(--studio-text);
+}
+html[data-studio-keyboard="true"] .wb-footer button:focus-visible,
+html[data-studio-keyboard="true"] .wb-studio button:focus-visible,
+html[data-studio-keyboard="true"] .wb-studio select:focus-visible,
+html[data-studio-keyboard="true"] .wb-notes .fui-Textarea:focus-within {
+    outline: 2px solid var(--studio-accent);
+    outline-offset: 3px;
+}
+@media (max-width: 640px) {
+    .wb-studio {
+        padding-inline: 14px;
+    }
+    .wb-workspace {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .wb-paper {
+        width: 100%;
+        flex: 0 0 auto;
+    }
+    .wb-notes {
+        flex: 0 0 auto;
+        max-height: none;
+    }
+    .wb-footer {
+        flex-wrap: wrap;
+    }
+    .wb-confirm {
+        flex-wrap: wrap;
+    }
+}

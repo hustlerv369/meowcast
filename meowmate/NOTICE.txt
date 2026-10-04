@@ -1,0 +1,6 @@
+Meowmate is derived from the MIT-licensed Coucou source code by Louis Raille.
+The upstream MIT copyright and license are retained in LICENSE.
+The upstream restrictions on Coucou/Mochi branding and artwork are reproduced in LICENSE-ASSETS.md for attribution and exclusion context.
+This export excludes upstream character artwork, character choreography, sounds or macOS artwork. Screenshots and promotional media are also excluded.
+Meowmate cat paths and generated icons, plus the simplified renderer with its greeting and attachment presentation are original replacement work, distributed under MIT.
+Legacy executable names and application identifiers are retained for data compatibility. They are not public product branding or an endorsement by the upstream author.
