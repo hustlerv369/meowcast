@@ -55,9 +55,9 @@
     document.querySelector('#download-status').textContent = message;
   }
   async function resolveDownload() {
-    // The verified preview.16 URL is already in HTML. Optional metadata failures must never remove it.
-    const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.16';
-    const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.16/Meowcast-Setup-Windows.exe';
+    // The verified preview.17 URL is already in HTML. Optional metadata failures must never remove it.
+    const releaseUrl = 'https://github.com/hustlerv369/meowcast/releases/tag/v9.30.0-preview.17';
+    const assetUrl = 'https://github.com/hustlerv369/meowcast/releases/download/v9.30.0-preview.17/Meowcast-Setup-Windows.exe';
     if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
       try {
         const response = await fetch('/download/status');
@@ -69,10 +69,10 @@
       } catch { /* Continue to the published-release check. */ }
     }
     try {
-      const response = await fetch('https://api.github.com/repos/hustlerv369/meowcast/releases/tags/v9.30.0-preview.16', { headers: { Accept: 'application/vnd.github+json' } });
+      const response = await fetch('https://api.github.com/repos/hustlerv369/meowcast/releases/tags/v9.30.0-preview.17', { headers: { Accept: 'application/vnd.github+json' } });
       if (!response.ok) return;
       const release = await response.json();
-      if (release.draft === true || release.tag_name !== 'v9.30.0-preview.16' || release.html_url !== releaseUrl) return;
+      if (release.draft === true || release.tag_name !== 'v9.30.0-preview.17' || release.html_url !== releaseUrl) return;
       document.querySelector('#release-link').href = releaseUrl;
       if (!Array.isArray(release.assets) || !release.assets.some(asset => asset.browser_download_url === assetUrl && asset.state === 'uploaded' && asset.size > 0)) return;
       enableDownload(assetUrl, 'Available for Windows. Includes Meowcast and Meowmate.');

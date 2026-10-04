@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = __dirname;
 const appRoot = fs.existsSync(path.resolve(root, '../app/package.json')) ? path.resolve(root, '../app') : path.resolve(root, '..');
-const installerName = 'Meowcast Setup 9.30.0-preview.16.exe';
+const installerName = 'Meowcast Setup 9.30.0-preview.17.exe';
 const installer = path.join(appRoot, 'release', installerName);
 const installerReady = () => {
   try { return JSON.parse(fs.readFileSync(path.join(root, 'download-state.json'), 'utf8')).ready === true && fs.statSync(installer).isFile() && fs.statSync(installer).size > 0; } catch { return false; }
