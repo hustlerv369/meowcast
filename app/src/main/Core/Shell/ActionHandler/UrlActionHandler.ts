@@ -19,6 +19,12 @@ export class UrlActionHandler implements ActionHandler {
      * e.g. `"https://example.com"`.
      */
     public async invokeAction(action: SearchResultItemAction): Promise<void> {
+        const url = new URL(action.argument);
+
+        if (url.protocol !== "http:" && url.protocol !== "https:") {
+            throw new Error("Only HTTP and HTTPS web links are supported.");
+        }
+
         return this.customWebBrowserActionHandler.isEnabled()
             ? await this.customWebBrowserActionHandler.openUrl(action.argument)
             : await this.shell.openExternal(action.argument);

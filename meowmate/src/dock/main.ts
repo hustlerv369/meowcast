@@ -1,3 +1,4 @@
+import "../core/theme-sync";
 import "./style.css";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -35,7 +36,7 @@ function frame(now:number) {
   if (document.hidden || now-previous < (reduced.matches ? 500 : 100)) return;
   const dt = Math.min(.15,(now-previous)/1000); previous=now;
   const dpr=Math.min(2,devicePixelRatio||1);
-  const light = matchMedia("(prefers-color-scheme: light)").matches;
+  const light = document.documentElement.dataset.theme === "light";
   engine.bodyColor = hexToRGB(light ? "#505050" : "#D0D0D0");
   engine.faceColor = light ? "#F5F5F5" : "#202020";
   if (canvas.width!==Math.round(44*dpr)) { canvas.width=Math.round(44*dpr);canvas.height=canvas.width; }

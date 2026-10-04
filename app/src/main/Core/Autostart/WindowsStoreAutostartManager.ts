@@ -5,7 +5,7 @@ import { join } from "path";
 import type { AutostartManager } from "./AutostartManager";
 
 export class WindowsStoreAutostartManager implements AutostartManager {
-    private readonly appId = "1915OliverSchwendener.Ueli_a397x08q5x7rp!OliverSchwendener.Ueli";
+    private readonly appId = "VojtaCode.Meowcast_kxn7qcvvd196g!Meowcast";
     private readonly shortcutTarget = `shell:AppsFolder\\${this.appId}`;
 
     public constructor(

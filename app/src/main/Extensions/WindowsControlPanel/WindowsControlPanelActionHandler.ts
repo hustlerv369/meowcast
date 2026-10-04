@@ -8,6 +8,8 @@ export class WindowsControlPanelActionHandler implements ActionHandler {
     public constructor(private readonly powershellUtility: PowershellUtility) {}
 
     public async invokeAction(action: SearchResultItemAction): Promise<void> {
-        await this.powershellUtility.executeCommand(`Show-ControlPanelItem -Name '${action.argument}'`);
+        await this.powershellUtility.executeCommand(
+            `Show-ControlPanelItem -Name '${action.argument.replace(/'/g, "''")}'`,
+        );
     }
 }

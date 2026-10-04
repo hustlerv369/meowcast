@@ -1,0 +1,35 @@
+.overview > .left > .card {
+  position: relative;
+}
+.overview .left-body { width: 100%; min-width: 0; }
+.overview .overview-open {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 104px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 14px var(--font);
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+.overview .overview-open:hover { background: var(--card-flat); }
+.overview .overview-open:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
+.overview .overview-open:disabled { opacity: .5; cursor: default; }
+.overview .who { padding-right: 6px; padding-left: 92px; }
+.overview .who .name { white-space: nowrap; font-size: 14px; line-height: 18px; }
+.overview .who .tool { display: none; }
+.overview .ticker { margin-right: 124px; margin-left: 92px; }
+.overview .activity-session { max-width: 100px; }
+.overview .pill { border-color: var(--hairline); box-shadow: none; }
+.overview .pill:hover { background: var(--card); border-color: var(--dim-3); box-shadow: none; }

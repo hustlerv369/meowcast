@@ -39,6 +39,15 @@ export default defineConfig(({ command }) => {
             chunkSizeWarningLimit: 1200,
         },
         plugins: [
+            {
+                name: "production-renderer-csp",
+                apply: "build",
+                transformIndexHtml: (html) =>
+                    html.replace(
+                        "script-src 'self' 'unsafe-inline';",
+                        "script-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';",
+                    ),
+            },
             react(),
             electron([
                 {

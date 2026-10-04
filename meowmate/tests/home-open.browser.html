@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><link rel="stylesheet" href="/src/style.css"><div id="fixture" style="width:600px;height:160px;padding:8px;box-sizing:border-box;background:var(--bg)"></div>
+<script type="module">
+import {buildOverview,buildHeader} from '/src/views/views.ts';
+import {State} from '/src/core/state.ts';
+import {SURFACES} from '/src/core/surfaces.ts';
+import {BotEngine} from '/src/mochi/engine.ts';
+import {tickMiniBots} from '/src/mochi/minibots.ts';
+window.runHomeChecks=()=>{
+ const checks=[];let opened=0;
+ const check=(name,value)=>{if(!value)throw Error(name);checks.push(name);};
+ const actions={openTarget:()=>opened++,setView(){},collapse(){},setFocus(){},openTerminal(){},chooseActivity(){},openSurface:async()=>true,openUrl(){},decide(){},toggleSound(){},setVolume(){},setAutoClose(){},openSettingsWindow(){},blip(){}};
+ State.tasks=[{id:'fixture',name:'Project session',color:'#F030F0',source:'claudeCode',state:'working',steps:['Reviewing project'],stepIndex:0,isIntegration:false},...SURFACES.slice(0,4).map(s=>({id:s.taskId,name:s.name,color:s.color,source:s.source,state:'idle',steps:[],stepIndex:0,isIntegration:true}))];State.focusId='fixture';
+ const header=buildHeader(actions);const view=buildOverview(actions);view.el.classList.add('on');view.el.style.height='92px';view.sync();const body=document.createElement('div');body.style.cssText='position:relative;height:84px';body.append(view.el);view.el.style.height='84px';document.querySelector('#fixture').replaceChildren(header.el,body);
+ const button=view.el.querySelector('.overview-open');check('Open app label is visible',button.textContent.trim()==='Open app');button.click();check('Open app calls existing action once',opened===1);
+ const b=button.getBoundingClientRect(),card=view.el.querySelector('.left>.card').getBoundingClientRect(),head=header.el.getBoundingClientRect();
+ check('minimum44target',b.height>=44&&b.width>=44);check('button inside card',b.left>=card.left&&b.right<=card.right&&b.top>=card.top&&b.bottom<=card.bottom);check('button below header',b.top>=head.bottom);check('native button focusable',button.tagName==='BUTTON'&&button.tabIndex===0);
+ const tasks=State.tasks;State.tasks=[];view.sync();button.click();check('empty selection cannot open',button.disabled&&opened===1);
+ State.tasks=tasks;view.sync();view.tick?.(performance.now());tickMiniBots(0);
+ const canvas=document.createElement('canvas'),dpr=window.devicePixelRatio||1;canvas.width=96*dpr;canvas.height=96*dpr;canvas.style.cssText='position:absolute;left:12px;top:-6px;width:96px;height:96px;pointer-events:none';body.append(canvas);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);new BotEngine().draw(ctx,96,96);
+ check('actual canvas cat visible',ctx.getImageData(0,0,canvas.width,canvas.height).data.some((value,index)=>index%4===3&&value>0));check('four provider pills rendered',view.el.querySelectorAll('.pill').length===4);check('project label has space',view.el.querySelector('.name').scrollWidth<=view.el.querySelector('.name').clientWidth);
+ return checks;
+};
+</script></html>

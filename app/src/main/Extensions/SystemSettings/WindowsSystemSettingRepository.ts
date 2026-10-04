@@ -40,7 +40,7 @@ export class WindowsSystemSettingsRepository implements SystemSettingRepository 
             new WindowsSystemSetting("Offline Maps", "ms-settings:maps", this.getGenericImageFilePath()),
             new WindowsSystemSetting("Startup apps", "ms-settings:startupapps", this.getGenericImageFilePath()),
             new WindowsSystemSetting("Video playback", "ms-settings:videoplayback", this.getGenericImageFilePath()),
-            new WindowsSystemSetting("Control center", "ms-settings:controlcenter$", this.getGenericImageFilePath()),
+            new WindowsSystemSetting("Control center", "ms-settings:controlcenter", this.getGenericImageFilePath()),
             new WindowsSystemSetting(
                 "Cortana across my devices",
                 "ms-settings:cortana-notifications",

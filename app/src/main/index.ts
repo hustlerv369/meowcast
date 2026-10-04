@@ -1,5 +1,7 @@
 import { app } from "electron";
+import { join } from "node:path";
 import { configureAppIdentity } from "./Core/App/configureAppIdentity";
+import { createSenderValidator, protectIpcMain } from "./Core/IpcTrust/TrustedIpc";
 import { createPrivateNet, protectSession } from "./Core/NetworkPrivacy/NetworkPrivacy";
 
 configureAppIdentity(app);
@@ -39,7 +41,18 @@ if (!app.requestSingleInstanceLock()) {
     moduleRegistry.register("Dialog", dialog);
     moduleRegistry.register("Emitter", mitt<Record<string, unknown>>());
     moduleRegistry.register("GlobalShortcut", globalShortcut);
-    moduleRegistry.register("IpcMain", ipcMain);
+    moduleRegistry.register(
+        "IpcMain",
+        protectIpcMain(
+            ipcMain,
+            createSenderValidator({
+                windows: () => moduleRegistry.get("BrowserWindowRegistry").getAll(),
+                rendererDirectory: join(__dirname, "..", "dist-renderer"),
+                isPackaged: app.isPackaged,
+                devServerUrl: process.env.VITE_DEV_SERVER_URL,
+            }),
+        ),
+    );
     moduleRegistry.register("NativeTheme", nativeTheme);
     moduleRegistry.register("Platform", platform());
     moduleRegistry.register("SafeStorage", safeStorage);

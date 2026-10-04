@@ -108,10 +108,19 @@ pub fn inbox_dir() -> PathBuf {
     settings::local_dir().join("inbox")
 }
 
-pub fn ingest(source: &str) -> Result<DroppedFile, String> {
-    let src = Path::new(source);
-    let input = std::fs::File::open(src).map_err(|_| "Soubor nelze přečíst. Zkontroluj, že je dostupný na disku.".to_string())?;
-    ingest_opened(input, src, &inbox_dir())
+/// IPC paths never authorize a read. Only a one-use native drop reservation does.
+pub fn ingest_request(_path: &str, token: Option<&str>) -> Result<DroppedFile, String> {
+    ingest_reserved(token.ok_or("Drop a file onto Meowmate before attaching it.")?)
+}
+
+/// Called only by native drag callbacks, never exposed as an IPC command.
+pub fn native_drop_payload(paths: &[PathBuf]) -> serde_json::Value {
+    let reserved = if paths.len() == 1 { reserve_drop(&paths[0]) }
+        else { Err("Drop one file at a time.".into()) };
+    match reserved {
+        Ok(token) => serde_json::json!({"type":"drop","paths":paths,"dropToken":token}),
+        Err(error) => serde_json::json!({"type":"error","error":error}),
+    }
 }
 
 fn ingest_opened(mut input: std::fs::File, src: &Path, dir: &Path) -> Result<DroppedFile, String> {
@@ -236,6 +245,11 @@ fn sweep(dir: &Path) {
 mod tests {
     use super::*;
 
+    fn ingest(source: &str) -> Result<DroppedFile, String> {
+        let src = Path::new(source);
+        ingest_opened(std::fs::File::open(src).map_err(|_| "Missing test fixture")?, src, &inbox_dir())
+    }
+
     fn reservation_fixture(label: &str) -> (PathBuf, PathBuf) {
         let unique = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos();
         let directory = std::env::temp_dir().join(format!("typek-{label}-{}-{unique}", std::process::id()));
@@ -243,6 +257,31 @@ mod tests {
         let source = directory.join("temporary.txt");
         std::fs::write(&source, b"held source survives deletion").unwrap();
         (directory, source)
+    }
+
+    #[test]
+    fn ipc_path_without_native_reservation_never_authorizes_copy() {
+        let (directory, source) = reservation_fixture("unreserved-ipc");
+        assert!(ingest_request(source.to_str().unwrap(), None).is_err());
+        assert!(ingest_request(source.to_str().unwrap(), Some("forged-token")).is_err());
+        assert!(source.exists());
+        std::fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn native_fallback_drop_issues_one_use_reservation_and_ignores_ipc_path() {
+        let (directory, source) = reservation_fixture("native-fallback");
+        assert_eq!(native_drop_payload(&[])["type"], "error");
+        assert_eq!(native_drop_payload(&[source.clone(), source.clone()])["type"], "error");
+        let payload = native_drop_payload(&[source.clone()]);
+        assert_eq!(payload["type"], "drop");
+        let token = payload["dropToken"].as_str().unwrap();
+        std::fs::remove_file(&source).unwrap();
+        let copied = ingest_request("C:/untrusted/ignored.txt", Some(token)).unwrap();
+        assert_eq!(std::fs::read(&copied.path).unwrap(), b"held source survives deletion");
+        assert!(ingest_request("anything", Some(token)).is_err());
+        std::fs::remove_file(copied.path).unwrap();
+        std::fs::remove_dir(directory).unwrap();
     }
 
     #[test]

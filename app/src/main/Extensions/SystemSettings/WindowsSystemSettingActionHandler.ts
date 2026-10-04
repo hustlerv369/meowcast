@@ -8,6 +8,10 @@ export class WindowsSystemSettingActionHandler implements ActionHandler {
     public constructor(private readonly powershellUtility: PowershellUtility) {}
 
     public async invokeAction({ argument }: SearchResultItemAction): Promise<void> {
-        await this.powershellUtility.executeCommand(`Start-Process "${argument}"`);
+        if (!/^ms-settings:[a-z0-9-]*$/i.test(argument)) {
+            throw new Error("Invalid Windows settings URI.");
+        }
+
+        await this.powershellUtility.executeCommand(`Start-Process '${argument}'`);
     }
 }

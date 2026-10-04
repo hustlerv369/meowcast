@@ -1,3 +1,4 @@
+import "./core/theme-sync";
 // Entry point: boot the bridge, wire the island, start the greeting.
 
 import "./style.css";

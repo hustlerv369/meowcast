@@ -1,3 +1,4 @@
+import "../core/theme-sync";
 // Settings window — the place where anything that writes to disk is confirmed.
 // Stage 2 covers the Claude Code hooks and the general preferences; API keys and
 // integrations land here too in a later stage.

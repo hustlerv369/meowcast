@@ -17,7 +17,10 @@ export class MacOsCustomWebBrowserActionHandler implements CustomWebBrowserActio
     }
 
     public async openUrl(url: string): Promise<void> {
-        await this.commandlineUtility.executeCommand(`open -a "${this.getCustomWebBrowserName()}" "${url}"`);
+        const literal = (value: string) => `'${value.replace(/'/g, "'\"'\"'")}'`;
+        await this.commandlineUtility.executeCommand(
+            `open -a ${literal(this.getCustomWebBrowserName())} ${literal(url)}`,
+        );
     }
 
     private getCustomWebBrowserName(): string {

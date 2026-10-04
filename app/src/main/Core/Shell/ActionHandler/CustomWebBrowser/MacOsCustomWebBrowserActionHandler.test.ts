@@ -68,8 +68,18 @@ describe(MacOsCustomWebBrowserActionHandler, () => {
                 "https://example.com",
             );
 
-            expect(executeCommandMock).toHaveBeenCalledWith('open -a "My Custom Browser" "https://example.com"');
+            expect(executeCommandMock).toHaveBeenCalledWith("open -a 'My Custom Browser' 'https://example.com'");
             expect(getValueMock).toHaveBeenCalledWith("general.browser.customWebBrowserName", "");
+        });
+        it("quotes shell substitutions and apostrophes as literal browser and URL text", async () => {
+            const executeCommand = vi.fn().mockResolvedValue("");
+            const settings = { getValue: () => "My'Browser$(id)" } as unknown as SettingsManager;
+            await new MacOsCustomWebBrowserActionHandler(settings, { executeCommand }).openUrl(
+                "https://example.com/$(id)?x='a'",
+            );
+            expect(executeCommand).toHaveBeenCalledWith(
+                "open -a 'My'\"'\"'Browser$(id)' 'https://example.com/$(id)?x='\"'\"'a'\"'\"''",
+            );
         });
     });
 });

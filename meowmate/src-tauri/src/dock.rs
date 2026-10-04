@@ -142,7 +142,7 @@ pub fn forward_drop(app:&AppHandle, event:&tauri::DragDropEvent) {
     let payload=match event {
         tauri::DragDropEvent::Enter{paths,..} => serde_json::json!({"type":"enter","paths":paths}),
         tauri::DragDropEvent::Over{..} => serde_json::json!({"type":"over"}),
-        tauri::DragDropEvent::Drop{paths,..} => serde_json::json!({"type":"drop","paths":paths}),
+        tauri::DragDropEvent::Drop{paths,..} => crate::files::native_drop_payload(paths),
         tauri::DragDropEvent::Leave => serde_json::json!({"type":"leave"}),
         _ => return,
     };

@@ -5,7 +5,8 @@ export class App {
         const app = moduleRegistry.get("App");
         const ipcMain = moduleRegistry.get("IpcMain");
 
-        if (process.platform === "win32") {
+        if (process.platform === "win32" && !process.windowsStore) {
+            // Store packages keep the AUMID assigned by their package manifest.
             // Must match the electron-builder appId so Windows groups the taskbar entry and
             // keeps the existing installer/taskbar identity across the Meowcast rename.
             app.setAppUserModelId("Hustler.HustleCMD");

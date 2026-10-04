@@ -6,6 +6,7 @@ mod dock;
 mod dock_position;
 mod encoding;
 mod files;
+mod gemini_browser;
 mod hooks;
 mod integrations;
 mod island;
@@ -15,6 +16,7 @@ mod pipe;
 mod projects;
 mod secrets;
 mod settings;
+mod shared_theme;
 mod surfaces;
 mod tray;
 mod win_user;
@@ -185,6 +187,13 @@ fn open_gemini() -> Result<(), String> {
 /// and falls back to Explorer otherwise.
 #[tauri::command]
 fn open_in_vscode(path: Option<String>) -> bool {
+    let path = match path.as_deref().filter(|p| !p.is_empty()) {
+        Some(input) => match projects::validate_path(std::path::Path::new(input)) {
+            Ok(validated) => Some(validated.to_string_lossy().trim_start_matches("\\\\?\\").to_string()),
+            Err(_) => return false,
+        },
+        None => None,
+    };
     // No `cmd /C` anywhere near this. The path is a project folder chosen by
     // whoever is using Claude Code, and cmd would happily read `&`, `^` and `%`
     // in a folder name as syntax. Finding the launcher ourselves and handing the
@@ -363,10 +372,7 @@ fn chat_cancel(chat: State<Arc<Chat>>) -> bool {
 /// Copies a dropped file into the inbox and reports its name back.
 #[tauri::command]
 async fn ingest_file(path: String, drop_token: Option<String>) -> Result<DroppedFile, String> {
-    tauri::async_runtime::spawn_blocking(move || match drop_token {
-        Some(token) => files::ingest_reserved(&token),
-        None => files::ingest(&path),
-    }).await.map_err(|_|"Přílohu se nepodařilo zkopírovat.".to_string())?
+    tauri::async_runtime::spawn_blocking(move || files::ingest_request(&path, drop_token.as_deref())).await.map_err(|_|"Přílohu se nepodařilo zkopírovat.".to_string())?
 }
 
 /// The island may only ask whether a key exists — never read it.
@@ -376,13 +382,19 @@ fn secret_present(key: String) -> bool {
 }
 
 #[tauri::command]
-fn secret_set(key: String, value: String) -> Result<(), String> {
+fn secret_set(window: tauri::WebviewWindow, key: String, value: String) -> Result<(), String> {
+    require_settings_window(window.label())?;
     secrets::set(&key, &value)
 }
 
 #[tauri::command]
-fn secret_clear(key: String) -> Result<(), String> {
+fn secret_clear(window: tauri::WebviewWindow, key: String) -> Result<(), String> {
+    require_settings_window(window.label())?;
     secrets::clear(&key)
+}
+
+fn require_settings_window(label: &str) -> Result<(), String> {
+    if label == "settings" { Ok(()) } else { Err("Open Settings to change credentials.".into()) }
 }
 
 /// Opens the configured n8n instance — the URL lives in the Credential Manager.
@@ -564,6 +576,7 @@ pub fn run() {
         .manage(Pending::default())
         .manage(activity::ActivityStore::default())
         .manage(Arc::new(Chat::default()))
+        .manage(Arc::new(gemini_browser::GeminiBrowser::default()))
         .manage(Arc::new(work::WorkManager::new()))
         .on_window_event(|win, event| {
             if win.label()==dock::LABEL {
@@ -572,6 +585,9 @@ pub fn run() {
             }
             if win.label() != island::WINDOW_LABEL { return; }
             let app = win.app_handle();
+            if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
+                let _ = app.emit_to(island::WINDOW_LABEL, "dock-drop", files::native_drop_payload(paths));
+            }
             let Some(shared) = app.try_state::<Shared>() else { return };
             match event {
                 tauri::WindowEvent::CloseRequested { api, .. } => {
@@ -592,6 +608,7 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            shared_theme::shared_theme,
             boot,
             dock_ready,
             dock_press,
@@ -603,6 +620,9 @@ pub fn run() {
             reposition,
             open_url,
             open_gemini,
+            gemini_browser::gemini_browser_open,
+            gemini_browser::gemini_browser_generate,
+            gemini_browser::gemini_browser_cancel,
             open_in_vscode,
             quit_app,
             hooks_status,
@@ -666,12 +686,26 @@ pub fn run() {
             if matches!(event, tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit) {
                 if let Some(chat) = app.try_state::<Arc<Chat>>() { chat.shutdown(); }
                 if let Some(manager) = app.try_state::<Arc<work::WorkManager>>() { manager.shutdown(); }
+                if let Some(browser) = app.try_state::<Arc<gemini_browser::GeminiBrowser>>() { browser.shutdown(); }
             }
         });
 }
 
 #[cfg(test)]
 mod window_config_tests {
+    #[test]
+    fn credential_mutation_requires_exact_settings_window_label() {
+        assert!(super::require_settings_window("settings").is_ok());
+        for label in ["", "island", "dock", "main", "Settings", "settings/other"] {
+            assert!(super::require_settings_window(label).is_err(), "{label}");
+        }
+    }
+    #[test]
+    fn editor_rejects_options_and_remote_paths_before_process_lookup() {
+        assert!(!super::open_in_vscode(Some("--reuse-window".into())));
+        assert!(!super::open_in_vscode(Some("\\\\server\\share".into())));
+        assert!(!super::open_in_vscode(Some("C:\\".into())));
+    }
     #[test]
     fn failed_settings_write_restores_registration_and_does_not_publish_values() {
         let mut current = super::Settings::default();

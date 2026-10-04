@@ -167,6 +167,7 @@ pub fn claude_command() -> Result<Command, String> {
         return Err("Nainstaluj Claude Code a přihlas ho k předplatnému.".into());
     }
     let mut cmd = Command::new(exe);
+    crate::codex::scrub_agent_environment(&mut cmd, std::env::vars_os().map(|(name, _)| name));
     for key in [
         "ANTHROPIC_API_KEY",
         "ANTHROPIC_AUTH_TOKEN",

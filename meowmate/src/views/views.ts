@@ -18,6 +18,7 @@ import { buildChoose, buildUpload, buildUploading } from "./upload";
 import { renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
 import { createProjectPicker } from "../components/project-picker";
 import "../components/project-picker.css";
+import "./overview.css";
 
 export interface ViewActions {
   setView(v: IslandViewName): void;
@@ -129,15 +130,16 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
 // ── Overview ──────────────────────────────────────────────────────────────────
 
-function buildOverview(actions: ViewActions): ViewHost {
+export function buildOverview(actions: ViewActions): ViewHost {
   const ticker = new Ticker();
   const who = h("div", { class: "who" });
   const tickerBody = h("div", { class: "card-body" }, who, ticker.el);
   const leftBody = h("div", { class: "left-body" });
   const jump = h(
     "button",
-    { class: "icon-btn jump", title: "Open", onclick: () => actions.openTarget() },
-    svg(ICONS.arrowUpRight, 8),
+    { class: "overview-open", type: "button", title: "Open app", "aria-label": "Open app", onclick: () => actions.openTarget() },
+    h("span", {text: "Open app"}),
+    svg(ICONS.arrowUpRight, 16),
   );
   const left = card(null, leftBody, jump);
   const pills = h("div", { class: "pills" });
@@ -207,6 +209,7 @@ function buildOverview(actions: ViewActions): ViewHost {
         if (whoKey !== nextWhoKey) {
         whoKey = nextWhoKey;
         clear(who);
+        who.title = `${task.name} · ${sourceLabel(task.source)}`;
         who.append(
           dot(task.color, 7),
           h("span", { class: "name", text: task.name }),
@@ -247,7 +250,8 @@ function buildOverview(actions: ViewActions): ViewHost {
       }
 
       jump.style.display = detailOpen ? "none" : "";
-      jump.title = task ? surfaceForTask(task.id)?.button ?? "Open" : "Open";
+      jump.title = task ? surfaceForTask(task.id)?.button ?? "Open app" : "Choose a session first";
+      jump.disabled = !task;
 
       const others = State.otherTasks.slice(0, 4);
       const pillKey = others.map((t) => `${t.id}:${t.pillBadge ?? ""}`).join("|");
@@ -270,38 +274,16 @@ function buildPill(task: AgentTask, actions: ViewActions): HTMLElement {
     canvas,
     h("span", { class: "lbl", text: label }),
   );
-  pill.style.borderColor = `${task.color}24`;
-  pill.style.setProperty("--surface-color", task.color);
-  pill.addEventListener("mouseenter", () => {
-    pill.style.background = `${task.color}2e`;
-    pill.style.borderColor = `${task.color}8c`;
-    pill.style.boxShadow = `0 2px 10px ${task.color}59`;
-    (pill.querySelector(".lbl") as HTMLElement).style.color = lighten(task.color, 0.3);
-  });
-  pill.addEventListener("mouseleave", () => {
-    pill.style.background = "";
-    pill.style.borderColor = `${task.color}24`;
-    pill.style.boxShadow = "";
-    (pill.querySelector(".lbl") as HTMLElement).style.color = "";
-  });
 
   if (task.pillBadge) {
     const colors = { approval: "#F5A524", finished: "#22C55E", error: "#F4505E" } as const;
     const icons = { approval: ICONS.bang, finished: ICONS.check, error: ICONS.xmark } as const;
     const inner = h("i", { style: `background:${colors[task.pillBadge]}` }, svg(icons[task.pillBadge], 6, { stroke: task.pillBadge === "finished" ? 3 : 0 }));
     const badge = h("div", { class: "pill-badge" }, inner);
-    badge.style.boxShadow = `0 0 4px ${colors[task.pillBadge]}99`;
+
     pill.append(badge);
   }
   return pill;
-}
-
-function lighten(hex: string, amount: number): string {
-  const v = parseInt(hex.replace("#", ""), 16);
-  const c = [(v >> 16) & 255, (v >> 8) & 255, v & 255].map((x) =>
-    Math.min(255, Math.round(x + amount * 255)),
-  );
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
 
 // ── Empty ─────────────────────────────────────────────────────────────────────

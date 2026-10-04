@@ -146,12 +146,12 @@ impl JobTree {
         }
     }
 }
-struct OwnedProcess {
-    child: Mutex<Child>,
+pub(crate) struct OwnedProcess {
+    pub(crate) child: Mutex<Child>,
     tree: JobTree,
 }
 impl OwnedProcess {
-    fn spawn(mut cmd: Command) -> Result<Arc<Self>, String> {
+    pub(crate) fn spawn(mut cmd: Command) -> Result<Arc<Self>, String> {
         let tree = JobTree::new()?;
         cmd.stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -169,7 +169,10 @@ impl OwnedProcess {
         });
         Ok(owned)
     }
-    fn resume(&self) -> Result<(), String> {
+    pub(crate) fn kill(&self) { self.tree.kill(); }
+    #[cfg(test)]
+    pub(crate) fn empty(&self) -> bool { self.tree.empty() }
+    pub(crate) fn resume(&self) -> Result<(), String> {
         let pid = self.child.lock().map_err(|_| "Proces není dostupný.")?.id();
         unsafe {
             let snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0)
@@ -528,6 +531,7 @@ impl WorkManager {
             ]);
             cmd
         };
+        crate::codex::scrub_agent_environment(&mut cmd, std::env::vars_os().map(|(name, _)| name));
         cmd.current_dir(&job.project);
         Ok(cmd)
     }

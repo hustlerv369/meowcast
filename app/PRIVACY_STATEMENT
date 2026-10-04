@@ -17,7 +17,7 @@ Search and integrations can contact the services they use, such as web search or
 
 Images
 
-Prompt Master structures image prompts offline. Reference thumbnails remain local until you separately attach a file in Gemini. The browser handoff opens Google's website; it does not transfer browser credentials or submit a generation automatically. Your browser and Google account settings govern activity there.
+Prompt Master structures image prompts offline. Connecting a browser opens a separate local profile where you sign in to Google yourself. Selecting Send prompt to Gemini sends the current prompt and any attached reference to Gemini. Nothing is sent automatically after sign-in. Generation results and downloads remain in the browser; Meowmate does not confirm that an image was completed. Copy prompt and Open in Gemini remain available for manual use. Your Google account and browser settings govern activity there.
 
 Source and control
 

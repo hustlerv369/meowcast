@@ -20,8 +20,19 @@ export function catSvg(expression: CatExpression = "calm"): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34 -34 68 68" fill="none"><path d="${CAT_HEAD}" fill="#D0D0D0"/><g stroke="#202020" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="${CAT_MARKS}"/><path d="${CAT_EYES[expression]}"/><path d="${CAT_NOSE}"/></g></svg>`;
 }
 
+export function neutralCatPalette(ink: string) {
+  const theme = typeof document === "undefined" ? undefined : document.documentElement.dataset.theme;
+  const lightInk = theme === "light" || (theme !== "dark" && /^#(?:f[0-9a-f]|e[0-9a-f]|d[0-9a-f])/i.test(ink));
+  return lightInk ? {body: "#505050", ink: "#F5F5F5"} : {body: "#D0D0D0", ink: "#202020"};
+}
+
 export function drawCat(context: CanvasRenderingContext2D, radius: number, expression: CatExpression, color = "#D0D0D0", ink = "#202020") {
+  const palette = neutralCatPalette(ink);
+  color = palette.body;
+  ink = palette.ink;
   context.save();
+  context.shadowBlur = 0;
+  context.shadowColor = "transparent";
   context.scale(radius / 30, radius / 30);
   context.fillStyle = color;
   context.fill(new Path2D(CAT_HEAD));
@@ -34,7 +45,12 @@ export function drawCat(context: CanvasRenderingContext2D, radius: number, expre
 }
 
 export function drawCatCompanion(context: CanvasRenderingContext2D, radius: number, expression: CatExpression, color = "#D0D0D0", ink = "#202020") {
+  const palette = neutralCatPalette(ink);
+  color = palette.body;
+  ink = palette.ink;
   context.save();
+  context.shadowBlur = 0;
+  context.shadowColor = "transparent";
   context.scale(radius / 30, radius / 30);
   context.strokeStyle = color;
   context.lineWidth = 5;

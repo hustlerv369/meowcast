@@ -3,9 +3,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::collections::{HashMap, VecDeque};
 use std::io::{BufRead, BufReader, Read, Write};
-use std::os::windows::{fs::MetadataExt, process::CommandExt};
+use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::process::{Child, ChildStdin, Command, Stdio};
+use std::process::{ChildStdin, Command};
+use crate::work::OwnedProcess;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc, Mutex, Weak};
 use std::time::{Duration, Instant};
@@ -44,7 +45,7 @@ pub struct ChatStatus {
 pub struct Chat {
     session: Mutex<Option<Session>>,
     cached: Mutex<Option<ChatStatus>>,
-    child: Mutex<Option<Weak<Mutex<Child>>>>,
+    child: Mutex<Option<Weak<OwnedProcess>>>,
     busy: AtomicBool,
     cancelled: AtomicBool,
 }
@@ -109,7 +110,7 @@ impl Chat {
         self.cancelled.store(true, Ordering::Release);
         if let Ok(slot) = self.child.lock() {
             if let Some(child) = slot.as_ref().and_then(Weak::upgrade) {
-                if let Ok(mut child) = child.lock() { let _ = child.kill(); }
+                child.kill();
             }
         }
     }
@@ -144,6 +145,22 @@ fn denial(message: &Value) -> Option<Value> {
     (message.get("method").is_some() && message.get("id").is_some()).then(||
         json!({"id": message["id"], "error": {"code": -32601, "message": "Typek chat does not support tool or permission requests"}}))
 }
+const UNSUPPORTED_TOOL: &str = "Chat stopped because Codex attempted an unsupported tool. Use Tasks for project work.";
+
+pub(crate) fn scrub_agent_environment(cmd: &mut Command, names: impl IntoIterator<Item = std::ffi::OsString>) {
+    for key in ["OPENAI_API_KEY", "OPENAI_BASE_URL", "NODE_OPTIONS", "NODE_PATH", "ELECTRON_RUN_AS_NODE", "CLAUDECODE"] { cmd.env_remove(key); }
+    for name in names {
+        let upper = name.to_string_lossy().to_ascii_uppercase();
+        if (upper.starts_with("CODEX_") && upper != "CODEX_HOME")
+            || matches!(upper.as_str(), "OPENAI_API_KEY" | "OPENAI_BASE_URL" | "NODE_OPTIONS" | "NODE_PATH" | "ELECTRON_RUN_AS_NODE") {
+            cmd.env_remove(name);
+        }
+    }
+}
+fn permitted_chat_item(item: &Value) -> bool {
+    matches!(item["type"].as_str(), Some("agentMessage" | "userMessage" | "reasoning" | "webSearch" | "contextCompaction" | "plan"))
+}
+
 pub(crate) fn codex_executable() -> Result<PathBuf, String> {
     let arch = if cfg!(target_arch = "aarch64") { "arm64" } else { "x64" };
     let target = if arch == "arm64" { "aarch64-pc-windows-msvc" } else { "x86_64-pc-windows-msvc" };
@@ -162,7 +179,7 @@ pub(crate) fn codex_executable() -> Result<PathBuf, String> {
 }
 
 struct Rpc {
-    child: Arc<Mutex<Child>>,
+    child: Arc<OwnedProcess>,
     stdin: ChildStdin,
     messages: mpsc::Receiver<Result<Value, String>>,
     deferred: VecDeque<Value>,
@@ -170,22 +187,24 @@ struct Rpc {
 }
 impl Drop for Rpc {
     fn drop(&mut self) {
-        if let Ok(mut child) = self.child.lock() { let _ = child.kill(); let _ = child.wait(); }
+        self.child.kill();
+        if let Ok(mut child) = self.child.child.lock() { let _ = child.wait(); }
     }
 }
 impl Rpc {
-    fn start(cwd: &Path, cancelled: Option<&AtomicBool>, registry: &Mutex<Option<Weak<Mutex<Child>>>>) -> Result<Self, String> {
+    fn start(cwd: &Path, cancelled: Option<&AtomicBool>, registry: &Mutex<Option<Weak<OwnedProcess>>>) -> Result<Self, String> {
         let mut cmd = Command::new(codex_executable()?);
         cmd.args(["app-server", "--listen", "stdio://", "-c", "model_provider=\"openai\"",
             "-c", "forced_login_method=\"chatgpt\"", "-c", "project_doc_max_bytes=0"]);
         for flag in FEATURES_OFF { cmd.args(["-c", &format!("features.{flag}=false")]); }
-        cmd.env_remove("OPENAI_API_KEY").env_remove("CODEX_API_KEY").env_remove("OPENAI_BASE_URL");
-        cmd.current_dir(cwd).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null());
-        cmd.creation_flags(0x0800_0000);
-        let mut child = cmd.spawn().map_err(|_| "Codex CLI se nepodařilo spustit.".to_string())?;
-        let stdin = child.stdin.take().ok_or(DISCONNECTED)?;
-        let stdout = child.stdout.take().ok_or(DISCONNECTED)?;
-        let child = Arc::new(Mutex::new(child));
+        scrub_agent_environment(&mut cmd, std::env::vars_os().map(|(name, _)| name));
+        cmd.current_dir(cwd);
+        let child = OwnedProcess::spawn(cmd)?;
+        let (stdin, stdout) = {
+            let mut process = child.child.lock().map_err(|_| DISCONNECTED)?;
+            (process.stdin.take().ok_or(DISCONNECTED)?, process.stdout.take().ok_or(DISCONNECTED)?)
+        };
+        child.resume()?;
         *registry.lock().map_err(|_| DISCONNECTED)? = Some(Arc::downgrade(&child));
         let (tx, messages) = mpsc::sync_channel(128);
         std::thread::spawn(move || {
@@ -269,7 +288,7 @@ struct Session {
     usable: bool,
 }
 impl Session {
-    fn connect(cancelled: Option<&AtomicBool>, registry: &Mutex<Option<Weak<Mutex<Child>>>>) -> Result<Self, String> {
+    fn connect(cancelled: Option<&AtomicBool>, registry: &Mutex<Option<Weak<OwnedProcess>>>) -> Result<Self, String> {
         let cwd = crate::settings::local_dir().join("chat");
         std::fs::create_dir_all(&cwd).map_err(|_| "Složku chatu nelze vytvořit.".to_string())?;
         let mut rpc = Rpc::start(&cwd, cancelled, registry)?;
@@ -338,7 +357,7 @@ impl Session {
                 interrupt_sent = true;
                 until = Instant::now() + Duration::from_secs(3);
             }
-            let value = self.rpc.receive(until, None)?;
+            let value = self.rpc.receive(until, Some(cancel))?;
             if let Some(text) = output.consume(&value)? {
                 emit(ChatDelta { request_id: request_id.into(), text });
             }
@@ -371,6 +390,7 @@ impl TurnOutput {
             let turn = &params["turn"];
             if turn["status"] == "completed" {
                 if let Some(items) = turn["items"].as_array() {
+                    if items.iter().any(|item| !permitted_chat_item(item)) { return Err(UNSUPPORTED_TOOL.into()); }
                     if let Some(item) = items.iter().rev().find(|i| i["type"] == "agentMessage" && i["phase"] != "commentary") {
                         if let Some(text) = item["text"].as_str() { self.latest = text.into(); }
                     }
@@ -383,6 +403,12 @@ impl TurnOutput {
             return Ok(None);
         }
         if params["turnId"] != self.turn_id { return Ok(None); }
+        if matches!(method, "item/started" | "item/completed") && !permitted_chat_item(&params["item"]) {
+            return Err(UNSUPPORTED_TOOL.into());
+        }
+        if ["item/commandExecution/", "item/fileChange/", "item/mcpToolCall/", "item/dynamicToolCall/"].iter().any(|prefix| method.starts_with(prefix)) {
+            return Err(UNSUPPORTED_TOOL.into());
+        }
         if method == "item/agentMessage/delta" {
             let id = params["itemId"].as_str().ok_or(DISCONNECTED)?;
             let delta = params["delta"].as_str().ok_or(DISCONNECTED)?;
@@ -453,6 +479,36 @@ fn input_items(query: &str, context: Option<ChatContext>) -> Result<Vec<Value>, 
 mod tests {
     use super::*;
     #[test]
+    fn inherited_runtime_context_is_removed_but_login_home_is_preserved() {
+        let mut cmd = Command::new("fixture.exe");
+        cmd.env("CODEX_HOME", "fixture-home");
+        let denied = ["CODEX_THREAD_ID", "CODEX_API_KEY", "CODEX_SANDBOX", "OPENAI_API_KEY", "OPENAI_BASE_URL", "NODE_OPTIONS", "NODE_PATH", "ELECTRON_RUN_AS_NODE", "CLAUDECODE"];
+        scrub_agent_environment(&mut cmd, denied.iter().chain(["CODEX_HOME"].iter()).map(|name| std::ffi::OsString::from(*name)));
+        let env = cmd.get_envs().collect::<HashMap<_, _>>();
+        for name in denied { assert_eq!(env.get(std::ffi::OsStr::new(name)), Some(&None)); }
+        assert_eq!(env.get(std::ffi::OsStr::new("CODEX_HOME")), Some(&Some(std::ffi::OsStr::new("fixture-home"))));
+    }
+    #[test]
+    fn unexpected_tools_fail_closed_on_start_and_terminal_without_exposing_arguments() {
+        for kind in ["commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "futureUnknownTool"] {
+            let item = json!({"type":kind,"command":"private fixture value"});
+            for method in ["item/started", "item/completed"] {
+                let mut out = TurnOutput::new("a", "b");
+                assert_eq!(out.consume(&json!({"method":method,"params":{"threadId":"a","turnId":"b","item":item}})).unwrap_err(), UNSUPPORTED_TOOL);
+            }
+            let mut out = TurnOutput::new("a", "b");
+            out.latest="Partial response".into();
+            assert_eq!(out.consume(&json!({"method":"turn/completed","params":{"threadId":"a","turn":{"id":"b","status":"completed","items":[item]}}})).unwrap_err(), UNSUPPORTED_TOOL);
+        }
+    }
+    #[test]
+    fn permitted_reasoning_and_search_remain_usable() {
+        let mut out = TurnOutput::new("a", "b");
+        for kind in ["reasoning", "webSearch", "userMessage", "contextCompaction", "plan"] {
+            assert!(out.consume(&json!({"method":"item/started","params":{"threadId":"a","turnId":"b","item":{"type":kind}}})).unwrap().is_none());
+        }
+    }
+    #[test]
     fn server_tool_requests_are_refused() {
         for method in ["item/commandExecution/requestApproval", "item/fileChange/requestApproval", "item/tool/call", "account/chatgptAuthTokens/refresh"] {
             let reply = denial(&json!({"id":42,"method":method,"params":{}})).unwrap();
@@ -468,15 +524,57 @@ mod tests {
     fn fixture_stdio_endpoint() {
         for line in std::io::stdin().lock().lines() { if line.is_err() { break; } }
     }
+    #[test]
+    #[ignore]
+    fn fixture_process_tree() {
+        if std::env::var_os("MEOWMATE_TREE_LEAF").is_none() {
+            let _descendant = Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", "codex::tests::fixture_process_tree", "--ignored", "--nocapture"])
+                .env("MEOWMATE_TREE_LEAF", "1").spawn().unwrap();
+            println!("TREE_READY");
+            std::io::stdout().flush().unwrap();
+        }
+        std::thread::sleep(Duration::from_secs(60));
+    }
+    #[test]
+    fn rpc_drop_and_shutdown_terminate_owned_descendants() {
+        for shutdown in [false, true] {
+            let mut cmd = Command::new(std::env::current_exe().unwrap());
+            cmd.args(["--exact", "codex::tests::fixture_process_tree", "--ignored", "--nocapture"]);
+            let process = OwnedProcess::spawn(cmd).unwrap();
+            let (stdin, stdout) = {
+                let mut child = process.child.lock().unwrap();
+                (child.stdin.take().unwrap(), child.stdout.take().unwrap())
+            };
+            process.resume().unwrap();
+            let (ready_tx, ready_rx) = mpsc::channel();
+            std::thread::spawn(move || {
+                for line in BufReader::new(stdout).lines().map_while(Result::ok) {
+                    if line == "TREE_READY" { let _ = ready_tx.send(()); break; }
+                }
+            });
+            ready_rx.recv_timeout(Duration::from_secs(5)).unwrap();
+            let (_tx, messages) = mpsc::channel();
+            let rpc = Rpc { child: process.clone(), stdin, messages, deferred: VecDeque::new(), next_id: 1 };
+            if shutdown {
+                let chat = Chat::default();
+                *chat.child.lock().unwrap() = Some(Arc::downgrade(&process));
+                chat.shutdown();
+            } else { drop(rpc); }
+            let until = Instant::now() + Duration::from_secs(5);
+            while !process.empty() && Instant::now() < until { std::thread::sleep(Duration::from_millis(20)); }
+            assert!(process.empty(), "Root and descendants must terminate together");
+        }
+    }
     fn fixture_rpc(rows: Vec<Value>) -> Rpc {
-        let mut child = Command::new(std::env::current_exe().unwrap())
-            .args(["--exact", "codex::tests::fixture_stdio_endpoint", "--ignored", "--nocapture"])
-            .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null())
-            .creation_flags(0x0800_0000).spawn().unwrap();
-        let stdin = child.stdin.take().unwrap();
+        let mut cmd = Command::new(std::env::current_exe().unwrap());
+        cmd.args(["--exact", "codex::tests::fixture_stdio_endpoint", "--ignored", "--nocapture"]);
+        let child = OwnedProcess::spawn(cmd).unwrap();
+        let stdin = child.child.lock().unwrap().stdin.take().unwrap();
+        child.resume().unwrap();
         let (tx, messages) = mpsc::sync_channel(128);
         for row in rows { tx.send(Ok(row)).unwrap(); }
-        Rpc {child:Arc::new(Mutex::new(child)),stdin,messages,deferred:VecDeque::new(),next_id:1}
+        Rpc {child,stdin,messages,deferred:VecDeque::new(),next_id:1}
     }
     #[test]
     fn notifications_before_request_reply_are_buffered() {
@@ -491,6 +589,23 @@ mod tests {
         let cancelled = AtomicBool::new(true);
         assert_eq!(rpc.receive_channel(Instant::now()+Duration::from_secs(30),Some(&cancelled)).unwrap_err(),CANCELLED);
         assert!(rpc.receive_channel(Instant::now(),None).unwrap_err().contains("včas"));
+    }
+    #[test]
+    fn cancellation_interrupts_a_silent_stream_promptly() {
+        let mut rpc = fixture_rpc(vec![]);
+        let (sender, receiver) = mpsc::sync_channel(1);
+        rpc.messages = receiver;
+        let cancel = Arc::new(AtomicBool::new(false));
+        let signal = cancel.clone();
+        let trigger = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(20));
+            signal.store(true, Ordering::Release);
+        });
+        let began = Instant::now();
+        assert_eq!(rpc.receive(began + Duration::from_secs(180), Some(&cancel)).unwrap_err(), CANCELLED);
+        assert!(began.elapsed() < Duration::from_secs(1));
+        trigger.join().unwrap();
+        drop(sender);
     }
     #[test]
     fn only_chatgpt_can_infer() {

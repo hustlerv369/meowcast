@@ -12,6 +12,12 @@ import type { SurfaceId } from "./surfaces";
 export const IS_TAURI =
   typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
+export interface GeminiBrowserResult {
+  status: "opened" | "ready" | "needs_sign_in" | "not_ready" | "send_clicked" | "cancelled" | "retry_blocked" | "error";
+  message: string;
+}
+export interface GeminiBrowserReference { name: string; mime: string; bytes: number[] }
+
 async function call<T>(cmd: string, args?: Record<string, unknown>): Promise<T | null> {
   if (!IS_TAURI) return null;
   try {
@@ -32,6 +38,11 @@ export interface BootInfo {
 }
 
 export const Bridge = {
+  sharedTheme: () => call<{version:1; source:'system'|'light'|'dark'; resolved:'light'|'dark'}>('shared_theme'),
+  geminiBrowserOpen: () => callOrThrow<GeminiBrowserResult>("gemini_browser_open"),
+  geminiBrowserCancel: () => callOrThrow<boolean>("gemini_browser_cancel"),
+  geminiBrowserGenerate: (prompt: string, reference?: GeminiBrowserReference) =>
+    callOrThrow<GeminiBrowserResult>("gemini_browser_generate", { prompt, reference }),
   boot: () => call<BootInfo>("boot"),
   dockReady: () => call<void>("dock_ready"),
   activitySnapshot: () => call<Activity[]>("activity_snapshot"),
@@ -196,7 +207,8 @@ export interface DragDropPayload {
 export async function onDragDrop(handler: (e: DragDropPayload) => void) {
   if (!IS_TAURI) return () => {};
   return getCurrentWebview().onDragDropEvent((event) => {
-    handler(event.payload as DragDropPayload);
+    // Native Drop reserves a held file handle and emits the tokenized dock-drop event.
+    if (event.payload.type !== "drop") handler(event.payload as DragDropPayload);
   });
 }
 

@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><link rel="stylesheet" href="/src/style.css"><link rel="stylesheet" href="/src/meowcast.css">
+<style>#fixture{width:700px;height:480px}.view{position:relative;height:100%}</style><div id="fixture"></div>
+<script type="module">
+import {buildImages} from '/src/views/images.ts';
+window.runImagesBrowserChecks=async()=>{
+ const checks=[];const check=(name,value)=>{checks.push({name,pass:!!value});if(!value)throw Error(name);};
+ const settle=()=>new Promise(resolve=>setTimeout(resolve,25));
+ const until=async(predicate)=>{for(let attempt=0;attempt<80&&!predicate();attempt++)await settle();};
+ let sends=[],copies=[],opens=0,connects=0,cancels=0,resolveRequest,resolveCancellation;let mode='pending',delayCancel=false;
+ const view=buildImages({copy:async(text)=>{copies.push(text);},open:async()=>{opens++;},connect:async()=>{connects++;return{status:'needs_sign_in',message:'private diagnostic'};},cancel:async()=>{cancels++;resolveRequest?.({status:'cancelled',message:'private diagnostic'});return delayCancel?new Promise(resolve=>resolveCancellation=resolve):true;},generate:async(prompt,reference)=>{
+  sends.push({prompt,reference});if(mode==='pending')return new Promise(r=>resolveRequest=r);
+  if(mode==='throw')throw Error('private diagnostic');return{status:mode,message:'private diagnostic'};
+ }});
+ document.querySelector('#fixture').replaceChildren(view.el);view.el.classList.add('on');
+ const button=text=>[...view.el.querySelectorAll('button')].find(b=>b.textContent===text);
+ const input=view.el.querySelector('textarea'),file=view.el.querySelector('input[type=file]'),feedback=view.el.querySelector('[role=status]');
+ check('blank prompt disabled',button('Send prompt to Gemini').disabled);
+ input.value='  Draw a cat with exact user spacing.  ';input.dispatchEvent(new Event('input'));
+ check('no implicit calls on edit',sends.length===0 && connects===0 && opens===0);
+ check('generate requires explicit browser connection',button('Send prompt to Gemini').disabled);
+ button('Connect browser').click();await settle();
+ check('connect never sends',connects===1 && sends.length===0 && input.value.startsWith('  '));
+ check('login requires explicit new Send',feedback.textContent.includes('Nothing is sent automatically'));
+ const canvas=document.createElement('canvas');canvas.width=2;canvas.height=2;canvas.getContext('2d').fillRect(0,0,2,2);
+ const fixtureBlob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+ const bytes=new Uint8Array(await fixtureBlob.arrayBuffer());
+ const selectedFixture=new File([bytes],'reference.png',{type:'image/png'});const dt=new DataTransfer();dt.items.add(selectedFixture);file.files=dt.files;file.dispatchEvent(new Event('change'));await until(()=>!file.disabled);
+ check('reference does not upload on selection',sends.length===0 && !view.el.querySelector('.images-reference').hidden);
+ const expected=input.value;button('Send prompt to Gemini').click();button('Send prompt to Gemini').click();await settle();
+ check('double click sends once',sends.length===1);
+ check('exact prompt and reference bytes',sends[0].prompt===expected && sends[0].reference.name==='reference.png' && sends[0].reference.mime==='image/png' && JSON.stringify(sends[0].reference.bytes)===JSON.stringify([...bytes]));
+ check('busy locks controls except explicit Cancel',[...view.el.querySelectorAll('input,textarea,select,button')].filter(n=>n!==button('Cancel browser action')).every(n=>n.disabled) && !button('Cancel browser action').disabled && !button('Cancel browser action').hidden);
+ resolveRequest({status:'needs_sign_in',message:'private diagnostic'});await settle();
+ check('login keeps draft and reference without retry',input.value===expected && !view.el.querySelector('.images-reference').hidden && sends.length===1 && !input.disabled);
+ mode='error';button('Send prompt to Gemini').click();await settle();
+ check('error keeps draft/reference and hides raw message',input.value===expected && !view.el.querySelector('.images-reference').hidden && !feedback.textContent.includes('private diagnostic'));
+ mode='throw';button('Send prompt to Gemini').click();await settle();
+ check('transport rejection keeps draft',input.value===expected && !input.disabled);
+ check('failure distinguishes browser draft from local draft',feedback.textContent.includes('Gemini may already hold a draft or attachment') && feedback.textContent.includes('local draft is unchanged'));
+ mode='retry_blocked';button('Send prompt to Gemini').click();await settle();
+ check('uncertain send explains duplicate prevention',feedback.textContent.includes('Another send is blocked to avoid duplicates'));
+ mode='send_clicked';button('Send prompt to Gemini').click();await settle();
+ check('click does not claim provider acceptance or completion',feedback.textContent==='Send clicked in Gemini. Check the browser for acceptance and the result.');
+ mode='pending';const beforeCancel=sends.length;button('Send prompt to Gemini').click();await settle();button('Cancel browser action').click();await settle();
+ check('cancel returns control without retry or draft loss',cancels===1 && sends.length===beforeCancel+1 && input.value===expected && !input.disabled && button('Cancel browser action').hidden && feedback.textContent.includes('already sent cannot be recalled'));
+ delayCancel=true;button('Send prompt to Gemini').click();await settle();button('Cancel browser action').click();await settle();
+ check('new action waits for previous cancellation acknowledgement',input.disabled && button('Send prompt to Gemini').disabled && button('Connect browser').disabled);
+ resolveCancellation(true);await settle();delayCancel=false;
+ check('cancellation acknowledgement unlocks draft',!input.disabled && !button('Send prompt to Gemini').disabled);
+ let finishRead;const selected=selectedFixture;const actualRead=selected.arrayBuffer.bind(selected);
+ selected.arrayBuffer=()=>new Promise(resolve=>finishRead=resolve);
+ const beforePreparationCancel=sends.length;button('Send prompt to Gemini').click();await settle();button('Cancel browser action').click();finishRead(await actualRead());await settle();
+ check('cancel during reference preparation never invokes send',sends.length===beforePreparationCancel && input.value===expected && !input.disabled && feedback.textContent.includes('Cancelled before sending'));
+ selected.arrayBuffer=actualRead;mode='send_clicked';
+ button('Remove reference').click();button('Send prompt to Gemini').click();await settle();
+ check('removed reference not sent',sends.at(-1).reference===undefined);
+ check('no implicit manual browser launch',opens===0);
+ const beforeManual=sends.length;button('Copy prompt').click();await settle();button('Open in Gemini').click();await settle();
+ check('manual copy and open remain independent of submission',copies.at(-1)===expected.trim() && opens===1 && sends.length===beforeManual);
+ let connectionStatus='error';
+ const offline=buildImages({copy:async()=>{},open:async()=>{},connect:async()=>({status:connectionStatus,message:'private diagnostic'}),generate:async()=>{throw Error('must not send');}});
+ document.querySelector('#fixture').replaceChildren(offline.el);offline.el.classList.add('on');
+ const offlineButton=text=>[...offline.el.querySelectorAll('button')].find(b=>b.textContent===text);
+ const offlineInput=offline.el.querySelector('textarea');offlineInput.value='Create an image of a cat';offlineInput.dispatchEvent(new Event('input'));
+ offlineButton('Connect browser').click();await settle();
+ check('failed connection keeps Generate disabled and manual actions usable',offlineButton('Send prompt to Gemini').disabled && !offlineButton('Copy prompt').disabled && !offlineButton('Open in Gemini').disabled);
+ connectionStatus='not_ready';offlineButton('Connect browser').click();await settle();
+ check('missing page or consent never enables send',offlineButton('Send prompt to Gemini').disabled && offline.el.querySelector('[role=status]').textContent.includes('then connect again'));
+ return checks;
+};
+</script></html>

@@ -29,6 +29,8 @@
 }
 .images-button:hover:not(:disabled) { background: rgba(128,128,128,.22); }
 .images-button:disabled { opacity: .5; cursor: default; }
+.images-generate { background: var(--ink); color: var(--bg); }
+.images-generate:hover:not(:disabled) { background: var(--ink); opacity: .88; }
 .images-button:focus-visible, .images-prompt:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .images-feedback { min-height: 20px; }
 .images-options { display: flex; flex-wrap: wrap; gap: 10px; }
